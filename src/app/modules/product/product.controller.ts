@@ -153,6 +153,40 @@ const updateProduct = async (req: Request, res: Response) => {
 
 
 
+const deleteProduct = async (req: Request, res: Response) => {
+    const { productId } = req.params;
+
+    try {
+        // Call service function to delete the product
+        const result = await ProductServices.deleteProductFromDB(productId);
+
+        // Check if the product exists
+        if (!result) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found",
+                data: {},
+            });
+        }
+
+        // Return success message if product is deleted
+        res.status(200).json({
+            success: true,
+            message: "Bicycle deleted successfully",
+            data: {},
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: err.message || "Something went wrong",
+        });
+    }
+};
 
 
-export const ProductController = { createProduct, getAllProducts, getSingleProduct, updateProduct };
+
+
+export const ProductController = { createProduct, getAllProducts, getSingleProduct, updateProduct, deleteProduct };
