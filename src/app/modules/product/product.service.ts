@@ -10,12 +10,6 @@ const createProductIntoDB = async(product: Product)=>{
 }
 
 
-// const getAllProductsFromDB = async()=>{
-//     const result = await ProductModel.find();
-//     return result;
-// }
-
-
 const getAllProductsFromDB = async (req: Request) => {
     const { searchTerm } = req.query;  // Extract searchTerm from query parameters
 
@@ -44,11 +38,30 @@ const getSingleProductFromDB = async (productId: string) => {
 
 
 
+const updateProductInDB = async (productId: string, updatedData: any) => {
+    try {
+        // Find the product by ID and update it
+        const updatedProduct = await ProductModel.findByIdAndUpdate(
+            productId,
+            { $set: updatedData },
+            { new: true }  // This option returns the updated document
+        );
+
+        return updatedProduct;  // Return the updated product
+    } catch (err) {
+        console.error(err);
+        throw new Error("Failed to update product");
+    }
+};
+
+
+
 
 
 export const ProductServices = {
     createProductIntoDB,
     getAllProductsFromDB,
-    getSingleProductFromDB
+    getSingleProductFromDB,
+    updateProductInDB
 
 }
