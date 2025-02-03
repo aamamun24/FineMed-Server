@@ -80,5 +80,46 @@ const getAllProducts = async (req: Request, res: Response) => {
     }
 };
 
+const getSingleProduct = async (req: Request, res: Response) => {
+    try {
+        const productId = req.params.productId;
 
-export const ProductController = { createProduct, getAllProducts };
+        const result = await ProductServices.getSingleProductFromDB(productId);
+
+        if (!result) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found",
+                error: {
+                    name: "NotFoundError",
+                    message: `No product found with ID: ${productId}`,
+                },
+                stack: new Error().stack,
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Single product retrieved successfully.",
+            data: result,
+        });
+
+    } catch (err: any) {
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: {
+                name: err.name || "UnknownError",
+                message: err.message || "Something went wrong",
+                stack: err.stack,
+            },
+        });
+    }
+};
+
+
+
+
+export const ProductController = { createProduct, getAllProducts, getSingleProduct };
