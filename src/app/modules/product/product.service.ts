@@ -1,3 +1,4 @@
+import { Request } from "express";
 import mongoose from "mongoose";
 import { Product } from "./product.interface";
 import { ProductModel } from "./product.model";
@@ -9,17 +10,36 @@ const createProductIntoDB = async(product: Product)=>{
 }
 
 
-const getAllProductsFromDB = async()=>{
-    const result = await ProductModel.find();
-    return result;
-}
+// const getAllProductsFromDB = async()=>{
+//     const result = await ProductModel.find();
+//     return result;
+// }
+
+
+const getAllProductsFromDB = async (req: Request) => {
+    const { searchTerm } = req.query;  // Extract searchTerm from query parameters
+
+    let filter = {};  // Default: No filtering, return all products
+
+    if (searchTerm) {
+        const regex = new RegExp(searchTerm as string, "i");  // Case-insensitive regex for searching
+        filter = {
+            $or: [
+                { name: regex },
+                { brand: regex },
+                { type: regex }
+            ]
+        };
+    }
+
+    return ProductModel.find(filter);  // Return the result directly
+};
+
 
 
 const getSingleProductFromDB = async (productId: string) => {
-
     const result = await ProductModel.findOne({ _id: new mongoose.Types.ObjectId(productId) });
-
-        return result;
+    return result;
 };
 
 

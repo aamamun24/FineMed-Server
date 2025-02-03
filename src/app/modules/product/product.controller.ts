@@ -55,7 +55,7 @@ const createProduct = async (req: Request, res: Response) => {
 
 const getAllProducts = async (req: Request, res: Response) => {
     try {
-        const result = await ProductServices.getAllProductsFromDB();
+        const result = await ProductServices.getAllProductsFromDB(req);  // Pass the `req` object here
 
         res.status(200).json({
             success: true,
@@ -79,6 +79,7 @@ const getAllProducts = async (req: Request, res: Response) => {
         res.status(500).json(errorResponse);
     }
 };
+
 
 const getSingleProduct = async (req: Request, res: Response) => {
     try {
@@ -118,6 +119,7 @@ const getSingleProduct = async (req: Request, res: Response) => {
         });
     }
 };
+
 
 
 
