@@ -1,4 +1,3 @@
-
 export enum BicycleType {
     Mountain = "Mountain",
     Road = "Road",
@@ -7,7 +6,7 @@ export enum BicycleType {
     Electric = "Electric"
 }
 
-export type Product = {
+export interface Product {
     name: string;
     brand: string;
     price: number;
@@ -15,4 +14,4 @@ export type Product = {
     description: string;
     quantity: number;
     inStock: boolean;
-};
+}
