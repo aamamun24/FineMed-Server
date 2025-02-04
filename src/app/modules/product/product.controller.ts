@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ProductServices } from "./product.service";
-import { Error } from "mongoose";
+import mongoose from "mongoose"; // ✅ Import mongoose for error handling
 
 // Define a type for validation errors
 type ValidationErrors = Record<string, { message: string; name: string; properties: unknown }>;
@@ -20,35 +20,18 @@ const createProduct = async (req: Request, res: Response) => {
         });
 
     } catch (err) {
-        if (err instanceof Error.ValidationError) {
-            const errors: ValidationErrors = {};
+        console.log('error',err);
 
-            Object.keys(err.errors).forEach((key) => {
-                const errorDetail = err.errors[key];
-                errors[key] = {
-                    message: errorDetail.message,
-                    name: errorDetail.name,
-                    properties: errorDetail.properties,
-                };
-            });
-
-            return res.status(400).json({
-                success: false,
-                message: "Validation failed",
-                error: {
-                    name: "ValidationError",
-                    errors,
-                },
-            });
-        }
 
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: err instanceof Error ? err.message : "Something went wrong",
+            error: err 
         });
     }
 };
+
+
 
 const getAllProducts = async (req: Request, res: Response) => {
     try {
@@ -64,7 +47,7 @@ const getAllProducts = async (req: Request, res: Response) => {
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: err instanceof Error ? err.message : "Something went wrong",
+            error: err
         });
     }
 };
@@ -72,10 +55,18 @@ const getAllProducts = async (req: Request, res: Response) => {
 const getSingleProduct = async (req: Request, res: Response) => {
     try {
         const productId = req.params.productId;
+
+        if (!mongoose.Types.ObjectId.isValid(productId)) { // ✅ Validate ObjectId
+             res.status(400).json({
+                success: false,
+                message: "Invalid product ID format",
+            });
+        }
+
         const result = await ProductServices.getSingleProductFromDB(productId);
 
         if (!result) {
-            return res.status(404).json({
+             res.status(404).json({
                 success: false,
                 message: "Product not found",
                 error: {
@@ -95,7 +86,7 @@ const getSingleProduct = async (req: Request, res: Response) => {
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: err instanceof Error ? err.message : "Something went wrong",
+            error: err 
         });
     }
 };
@@ -103,12 +94,20 @@ const getSingleProduct = async (req: Request, res: Response) => {
 const updateProduct = async (req: Request, res: Response) => {
     try {
         const productId = req.params.productId;
+
+        if (!mongoose.Types.ObjectId.isValid(productId)) { // ✅ Validate ObjectId
+             res.status(400).json({
+                success: false,
+                message: "Invalid product ID format",
+            });
+        }
+
         const updatedData = req.body;
 
         const updatedProduct = await ProductServices.updateProductInDB(productId, updatedData);
 
         if (!updatedProduct) {
-            return res.status(404).json({
+             res.status(404).json({
                 success: false,
                 message: "Product not found",
             });
@@ -123,7 +122,7 @@ const updateProduct = async (req: Request, res: Response) => {
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: err instanceof Error ? err.message : "Something went wrong",
+            error: err 
         });
     }
 };
@@ -131,10 +130,18 @@ const updateProduct = async (req: Request, res: Response) => {
 const deleteProduct = async (req: Request, res: Response) => {
     try {
         const { productId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(productId)) { // ✅ Validate ObjectId
+             res.status(400).json({
+                success: false,
+                message: "Invalid product ID format",
+            });
+        }
+
         const result = await ProductServices.deleteProductFromDB(productId);
 
         if (!result) {
-            return res.status(404).json({
+             res.status(404).json({
                 success: false,
                 message: "Product not found",
             });
@@ -149,7 +156,7 @@ const deleteProduct = async (req: Request, res: Response) => {
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: err instanceof Error ? err.message : "Something went wrong",
+            error: err 
         });
     }
 };
