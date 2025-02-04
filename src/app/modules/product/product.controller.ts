@@ -57,7 +57,7 @@ const getSingleProduct = async (req: Request, res: Response) => {
         const productId = req.params.productId;
 
         if (!mongoose.Types.ObjectId.isValid(productId)) { // ✅ Validate ObjectId
-             res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Invalid product ID format",
             });
@@ -96,7 +96,7 @@ const updateProduct = async (req: Request, res: Response) => {
         const productId = req.params.productId;
 
         if (!mongoose.Types.ObjectId.isValid(productId)) { // ✅ Validate ObjectId
-             res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Invalid product ID format",
             });
@@ -119,6 +119,7 @@ const updateProduct = async (req: Request, res: Response) => {
             data: updatedProduct,
         });
     } catch (err) {
+
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
@@ -132,7 +133,7 @@ const deleteProduct = async (req: Request, res: Response) => {
         const { productId } = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(productId)) { // ✅ Validate ObjectId
-             res.status(400).json({
+             return res.status(400).json({
                 success: false,
                 message: "Invalid product ID format",
             });
@@ -153,6 +154,7 @@ const deleteProduct = async (req: Request, res: Response) => {
         });
 
     } catch (err) {
+
         res.status(500).json({
             success: false,
             message: "Internal Server Error",

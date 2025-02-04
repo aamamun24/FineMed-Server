@@ -11,7 +11,7 @@ const createOrder = async (req: Request, res: Response) => {
         const order = req.body.order;
         const result = await OrderServices.createOrderIntoDB(order);
 
-         res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: "Order placed successfully.",
             data: result,
@@ -28,7 +28,7 @@ const createOrder = async (req: Request, res: Response) => {
                 };
             });
 
-             res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Validation failed",
                 error: {
@@ -38,7 +38,7 @@ const createOrder = async (req: Request, res: Response) => {
             });
         }
 
-         res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: "Internal Server Error",
             error: (err as Error).message || "Something went wrong",
@@ -50,7 +50,7 @@ const getRevenue = async (req: Request, res: Response)=> {
     try {
         const totalRevenue = await OrderServices.calculateRevenue();
 
-         res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: "Revenue calculated successfully",
             data: {
@@ -58,7 +58,7 @@ const getRevenue = async (req: Request, res: Response)=> {
             },
         });
     } catch (err: unknown) {
-         res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: "Internal Server Error",
             error: (err as Error).message || "Something went wrong",
