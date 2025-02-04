@@ -48,6 +48,54 @@ const createOrderIntoDB = async (order: Order) => {
     return newOrder;
 };
 
+
+
+
+const calculateRevenue = async () => {
+    const revenue = await OrderModel.aggregate([
+        {
+            $lookup: {
+                from: "products", // The name of the product collection
+                localField: "product",
+                foreignField: "_id",
+                as: "productDetails"
+            }
+        },
+        {
+            $unwind: "$productDetails" // Flatten the productDetails array
+        },
+        {
+            $project: {
+                totalPrice: {
+                    $multiply: ["$quantity", "$productDetails.price"] // Multiply quantity with product price
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null, // Group all orders together
+                totalRevenue: { $sum: "$totalPrice" } // Sum up the totalPrice for all orders
+            }
+        },
+        {
+            $project: {
+                _id: 0, // Exclude _id from the result
+                totalRevenue: 1 // Include only the totalRevenue
+            }
+        }
+    ]);
+
+    return revenue.length > 0 ? revenue[0].totalRevenue : 0;
+};
+
+
+
+
+
+
+
+
 export const OrderServices = {
-    createOrderIntoDB
+    createOrderIntoDB,
+    calculateRevenue
 };

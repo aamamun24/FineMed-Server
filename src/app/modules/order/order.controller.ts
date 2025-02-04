@@ -49,4 +49,26 @@ const createOrder = async (req: Request, res: Response) => {
     }
 };
 
-export const OrderController = { createOrder };
+const getRevenue = async (req: Request, res: Response) => {
+    try {
+        // Call service function to calculate total revenue
+        const totalRevenue = await OrderServices.calculateRevenue();
+
+        res.status(200).json({
+            success: true,
+            message: "Revenue calculated successfully",
+            data: {
+                totalRevenue,
+            },
+        });
+    } catch (err: any) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: err.message || "Something went wrong",
+        });
+    }
+};
+
+export const OrderController = { createOrder, getRevenue };
