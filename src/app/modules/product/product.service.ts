@@ -4,19 +4,17 @@ import { Product } from "./product.interface";
 import { ProductModel } from "./product.model";
 
 
-const createProductIntoDB = async(product: Product)=>{
-    const result = await ProductModel.create(product);
-    return result;
-}
-
+const createProductIntoDB = async (product: Product) => {
+    return await ProductModel.create(product);
+};
 
 const getAllProductsFromDB = async (req: Request) => {
-    const { searchTerm } = req.query;  // Extract searchTerm from query parameters
+    const { searchTerm } = req.query; // Extract searchTerm from query parameters
 
-    let filter = {};  // Default: No filtering, return all products
+    let filter = {}; // Default: No filtering, return all products
 
     if (searchTerm) {
-        const regex = new RegExp(searchTerm as string, "i");  // Case-insensitive regex for searching
+        const regex = new RegExp(searchTerm as string, "i"); // Case-insensitive regex for searching
         filter = {
             $or: [
                 { name: regex },
@@ -26,48 +24,24 @@ const getAllProductsFromDB = async (req: Request) => {
         };
     }
 
-    return ProductModel.find(filter);  // Return the result directly
+    return ProductModel.find(filter);
 };
-
-
 
 const getSingleProductFromDB = async (productId: string) => {
-    const result = await ProductModel.findOne({ _id: new mongoose.Types.ObjectId(productId) });
-    return result;
+    return await ProductModel.findOne({ _id: new mongoose.Types.ObjectId(productId) });
 };
 
-
-
-const updateProductInDB = async (productId: string, updatedData: any) => {
-    try {
-        // Find the product by ID and update it
-        const updatedProduct = await ProductModel.findByIdAndUpdate(
-            productId,
-            { $set: updatedData },
-            { new: true }  // This option returns the updated document
-        );
-
-        return updatedProduct;  // Return the updated product
-    } catch (err) {
-        console.error(err);
-        throw new Error("Failed to update product");
-    }
+const updateProductInDB = async (productId: string, updatedData: Partial<Product>) => {
+    return await ProductModel.findByIdAndUpdate(
+        productId,
+        { $set: updatedData },
+        { new: true } // This option returns the updated document
+    );
 };
-
 
 const deleteProductFromDB = async (productId: string) => {
-    try {
-        // Find and delete the product by its ID
-        const result = await ProductModel.findByIdAndDelete(productId);
-        return result;
-    } catch (err) {
-        throw new Error("Error deleting product");
-    }
+    return await ProductModel.findByIdAndDelete(productId);
 };
-
-
-
-
 
 export const ProductServices = {
     createProductIntoDB,
@@ -75,5 +49,4 @@ export const ProductServices = {
     getSingleProductFromDB,
     updateProductInDB,
     deleteProductFromDB
-
-}
+};

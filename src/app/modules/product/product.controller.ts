@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { ProductServices } from "./product.service";
+import { Error } from "mongoose";
 
-
-
-
+// Define a type for validation errors
+type ValidationErrors = Record<string, { message: string; name: string; properties: unknown }>;
 
 const createProduct = async (req: Request, res: Response) => {
     try {
@@ -19,18 +19,16 @@ const createProduct = async (req: Request, res: Response) => {
             data: result,
         });
 
-    } catch (err: any) {
-        console.error(err);
-
-        // Handle Mongoose validation errors
-        if (err.name === "ValidationError") {
-            let errors: Record<string, any> = {};
+    } catch (err) {
+        if (err instanceof Error.ValidationError) {
+            const errors: ValidationErrors = {};
 
             Object.keys(err.errors).forEach((key) => {
+                const errorDetail = err.errors[key];
                 errors[key] = {
-                    message: err.errors[key].message,
-                    name: err.errors[key].name,
-                    properties: err.errors[key].properties,
+                    message: errorDetail.message,
+                    name: errorDetail.name,
+                    properties: errorDetail.properties,
                 };
             });
 
@@ -44,18 +42,17 @@ const createProduct = async (req: Request, res: Response) => {
             });
         }
 
-        // Generic error handling
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: err.message || "Something went wrong",
+            error: err instanceof Error ? err.message : "Something went wrong",
         });
     }
 };
 
 const getAllProducts = async (req: Request, res: Response) => {
     try {
-        const result = await ProductServices.getAllProductsFromDB(req);  // Pass the `req` object here
+        const result = await ProductServices.getAllProductsFromDB(req);
 
         res.status(200).json({
             success: true,
@@ -63,28 +60,18 @@ const getAllProducts = async (req: Request, res: Response) => {
             data: result,
         });
 
-    } catch (err: any) {
-        console.error(err);
-
-        let errorResponse: Record<string, any> = {
-            message: "Internal Server Error",
+    } catch (err) {
+        res.status(500).json({
             success: false,
-            error: {
-                name: err.name || "UnknownError",
-                message: err.message || "Something went wrong",
-            },
-            stack: err.stack || "No stack trace available",
-        };
-
-        res.status(500).json(errorResponse);
+            message: "Internal Server Error",
+            error: err instanceof Error ? err.message : "Something went wrong",
+        });
     }
 };
-
 
 const getSingleProduct = async (req: Request, res: Response) => {
     try {
         const productId = req.params.productId;
-
         const result = await ProductServices.getSingleProductFromDB(productId);
 
         if (!result) {
@@ -95,7 +82,6 @@ const getSingleProduct = async (req: Request, res: Response) => {
                     name: "NotFoundError",
                     message: `No product found with ID: ${productId}`,
                 },
-                stack: new Error().stack,
             });
         }
 
@@ -105,28 +91,21 @@ const getSingleProduct = async (req: Request, res: Response) => {
             data: result,
         });
 
-    } catch (err: any) {
-        console.error(err);
-
+    } catch (err) {
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: {
-                name: err.name || "UnknownError",
-                message: err.message || "Something went wrong",
-                stack: err.stack,
-            },
+            error: err instanceof Error ? err.message : "Something went wrong",
         });
     }
 };
 
-
 const updateProduct = async (req: Request, res: Response) => {
     try {
-        const productId = req.params.productId;  // Extract productId from the URL parameter
-        const updatedData = req.body;  // Extract the updated product details from the request body
+        const productId = req.params.productId;
+        const updatedData = req.body;
 
-        const updatedProduct = await ProductServices.updateProductInDB(productId, updatedData);  // Call service to update product
+        const updatedProduct = await ProductServices.updateProductInDB(productId, updatedData);
 
         if (!updatedProduct) {
             return res.status(404).json({
@@ -140,53 +119,39 @@ const updateProduct = async (req: Request, res: Response) => {
             message: "Product updated successfully",
             data: updatedProduct,
         });
-    } catch (err: any) {
-        console.error(err);
+    } catch (err) {
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: err.message || "Something went wrong",
-            stack: err.stack || "No stack trace available",
+            error: err instanceof Error ? err.message : "Something went wrong",
         });
     }
 };
 
-
-
 const deleteProduct = async (req: Request, res: Response) => {
-    const { productId } = req.params;
-
     try {
-        // Call service function to delete the product
+        const { productId } = req.params;
         const result = await ProductServices.deleteProductFromDB(productId);
 
-        // Check if the product exists
         if (!result) {
             return res.status(404).json({
                 success: false,
                 message: "Product not found",
-                data: {},
             });
         }
 
-        // Return success message if product is deleted
         res.status(200).json({
             success: true,
-            message: "Bicycle deleted successfully",
-            data: {},
+            message: "Product deleted successfully",
         });
 
     } catch (err) {
-        console.error(err);
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: err.message || "Something went wrong",
+            error: err instanceof Error ? err.message : "Something went wrong",
         });
     }
 };
-
-
-
 
 export const ProductController = { createProduct, getAllProducts, getSingleProduct, updateProduct, deleteProduct };

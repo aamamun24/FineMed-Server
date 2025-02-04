@@ -1,4 +1,4 @@
-# **Bicycle Store Server**
+# **Bicycle Garden Server**
 
 ![Bicycle Store Banner](https://i.postimg.cc/Vv24FZX6/Frame-6.png)
 

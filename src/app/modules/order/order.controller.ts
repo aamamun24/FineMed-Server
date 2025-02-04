@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
 import { OrderServices } from "./order.service";
 
+// Define Mongoose validation error type
+type ValidationError = {
+    name: string;
+    errors: Record<string, { message: string; name: string; properties: unknown }>;
+};
+
 const createOrder = async (req: Request, res: Response) => {
     try {
         const order = req.body.order;
@@ -9,24 +15,22 @@ const createOrder = async (req: Request, res: Response) => {
         const result = await OrderServices.createOrderIntoDB(order);
 
         // Send response correctly
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: "Order placed successfully.",
             data: result,
         });
 
-    } catch (err: any) {
-        console.error(err);
-
+    } catch (err: unknown) {
         // Handle Mongoose validation errors
-        if (err.name === "ValidationError") {
-            let errors: Record<string, any> = {};
+        if ((err as ValidationError).name === "ValidationError") {
+            const errors: Record<string, { message: string; name: string; properties: unknown }> = {};
 
-            Object.keys(err.errors).forEach((key) => {
+            Object.keys((err as ValidationError).errors).forEach((key) => {
                 errors[key] = {
-                    message: err.errors[key].message,
-                    name: err.errors[key].name,
-                    properties: err.errors[key].properties,
+                    message: (err as ValidationError).errors[key].message,
+                    name: (err as ValidationError).errors[key].name,
+                    properties: (err as ValidationError).errors[key].properties,
                 };
             });
 
@@ -40,11 +44,10 @@ const createOrder = async (req: Request, res: Response) => {
             });
         }
 
-        // Generic error handling
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: err.message || "Something went wrong",
+            error: (err as Error).message || "Something went wrong",
         });
     }
 };
@@ -54,19 +57,19 @@ const getRevenue = async (req: Request, res: Response) => {
         // Call service function to calculate total revenue
         const totalRevenue = await OrderServices.calculateRevenue();
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: "Revenue calculated successfully",
             data: {
                 totalRevenue,
             },
         });
-    } catch (err: any) {
-        console.error(err);
-        res.status(500).json({
+
+    } catch (err: unknown) {
+        return res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: err.message || "Something went wrong",
+            error: (err as Error).message || "Something went wrong",
         });
     }
 };
