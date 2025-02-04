@@ -18,7 +18,6 @@ The **Bicycle Garden Server** is a comprehensive backend system designed to mana
 
 ### **Order Management**
 - **Place Orders**: Customers can place orders for bicycles, specifying quantity and product details.
-- **Update Orders**: Modify order status, such as marking orders as shipped.
 - **Track Stock Availability**: Automatically check inventory and prevent orders if there’s insufficient stock.
 - **Revenue Calculation**: The server calculates total revenue from orders, utilizing MongoDB aggregation pipelines to sum up the sales amount.
 
