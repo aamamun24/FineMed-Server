@@ -7,7 +7,7 @@ type ValidationErrors = Record<string, { message: string; name: string; properti
 
 const createProduct = async (req: Request, res: Response) => {
     try {
-        const product = req.body.product;
+        const product = req.body;
 
         // Call service function to send this data
         const result = await ProductServices.createProductIntoDB(product);
