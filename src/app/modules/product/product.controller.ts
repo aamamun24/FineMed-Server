@@ -95,7 +95,7 @@ const updateProduct = async (req: Request, res: Response) => {
     try {
         const productId = req.params.productId;
 
-        if (!mongoose.Types.ObjectId.isValid(productId)) { // ✅ Validate ObjectId
+        if (!mongoose.Types.ObjectId.isValid(productId)) { 
             return res.status(400).json({
                 success: false,
                 message: "Invalid product ID format",
@@ -132,7 +132,7 @@ const deleteProduct = async (req: Request, res: Response) => {
     try {
         const { productId } = req.params;
 
-        if (!mongoose.Types.ObjectId.isValid(productId)) { // ✅ Validate ObjectId
+        if (!mongoose.Types.ObjectId.isValid(productId)) { 
              return res.status(400).json({
                 success: false,
                 message: "Invalid product ID format",
@@ -162,5 +162,6 @@ const deleteProduct = async (req: Request, res: Response) => {
         });
     }
 };
+
 
 export const ProductController = { createProduct, getAllProducts, getSingleProduct, updateProduct, deleteProduct };

@@ -8,7 +8,7 @@ type ValidationError = {
 
 const createOrder = async (req: Request, res: Response) => {
     try {
-        const order = req.body.order;
+        const order = req.body;
         const result = await OrderServices.createOrderIntoDB(order);
 
         return res.status(201).json({
@@ -45,6 +45,9 @@ const createOrder = async (req: Request, res: Response) => {
         });
     }
 };
+
+
+
 
 const getRevenue = async (req: Request, res: Response)=> {
     try {
