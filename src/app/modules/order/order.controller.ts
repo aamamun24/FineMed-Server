@@ -18,7 +18,7 @@ const createOrder = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllOrders = catchAsync(async (req: Request, res: Response) => {
-  const result = await OrderServices.getAllOrdersFromDB();
+  const result = await OrderServices.getAllOrdersFromDB(req.query);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -89,16 +89,16 @@ const deleteOrder = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getRevenue = catchAsync(async (req: Request, res: Response) => {
-  const totalRevenue = await OrderServices.calculateRevenue();
+// const getRevenue = catchAsync(async (req: Request, res: Response) => {
+//   const totalRevenue = await OrderServices.calculateRevenue();
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Revenue calculated successfully.",
-    data: { totalRevenue },
-  });
-});
+//   sendResponse(res, {
+//     statusCode: httpStatus.OK,
+//     success: true,
+//     message: "Revenue calculated successfully.",
+//     data: { totalRevenue },
+//   });
+// });
 
 export const OrderController = {
   createOrder,
@@ -106,5 +106,5 @@ export const OrderController = {
   getSingleOrder,
   updateOrder,
   deleteOrder,
-  getRevenue,
+  // getRevenue,
 };

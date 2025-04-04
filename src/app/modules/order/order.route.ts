@@ -20,7 +20,7 @@ router.patch("/:orderId",auth("admin","customer"), OrderController.updateOrder);
 router.delete("/:orderId",auth("admin","customer"), OrderController.deleteOrder);
 
 // Calculate total revenue
-router.get("/revenue",auth("admin"), OrderController.getRevenue);
+// router.get("/revenue",auth("admin"), OrderController.getRevenue);
 
 export const OrderRoutes = router;
 

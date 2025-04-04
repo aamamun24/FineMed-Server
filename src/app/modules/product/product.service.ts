@@ -15,7 +15,7 @@ const createProductIntoDB = async (product: Product) => {
 const getAllProductsFromDB = async (query: Record<string, unknown>) => {
     try {
         const productsQuery = new QueryBuilder(ProductModel.find(), query)
-            .search(["name", "description", "brand"])
+            .search(["name", "category", "brand"])
             .filter()
             .sort()
             .paginate()
