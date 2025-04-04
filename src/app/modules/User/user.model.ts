@@ -6,6 +6,11 @@ import { TUser, IUserModel } from "./user.interface";
 // Define the Mongoose schema
 const userSchema = new Schema<TUser>(
   {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+    },
     email: {
       type: String,
       required: [true, "Email is required"],

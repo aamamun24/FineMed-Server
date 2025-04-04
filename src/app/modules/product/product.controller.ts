@@ -1,167 +1,98 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
+import httpStatus from "http-status";
+import catchAsync from "../../../utils/catchAsync";
+import sendResponse from "../../../utils/sendResponse";
 import { ProductServices } from "./product.service";
-import mongoose from "mongoose"; // ✅ Import mongoose for error handling
 
-// Define a type for validation errors
-type ValidationErrors = Record<string, { message: string; name: string; properties: unknown }>;
+const createProduct = catchAsync(async (req: Request, res: Response) => {
+  const product = req.body;
+  const result = await ProductServices.createProductIntoDB(product);
 
-const createProduct = async (req: Request, res: Response) => {
-    try {
-        const product = req.body;
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED, // 201 for resource creation
+    success: true,
+    message: "Product is created successfully.",
+    data: result,
+  });
+});
 
-        // Call service function to send this data
-        const result = await ProductServices.createProductIntoDB(product);
+const getAllProducts = catchAsync(async (req: Request, res: Response) => {
+  const result = await ProductServices.getAllProductsFromDB(req);
 
-        // Send response correctly
-        res.status(201).json({
-            success: true,
-            message: "Product is created successfully.",
-            data: result,
-        });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Products are retrieved successfully.",
+    data: result,
+  });
+});
 
-    } catch (err) {
-        console.log('error',err);
+const getSingleProduct = catchAsync(async (req: Request, res: Response) => {
+  const productId = req.params.productId;
 
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    throw new Error("Invalid product ID format"); // Will be caught by catchAsync
+  }
 
-        res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: err 
-        });
-    }
+  const result = await ProductServices.getSingleProductFromDB(productId);
+  if (!result) {
+    throw new Error(`No product found with ID: ${productId}`);
+  }
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Single product retrieved successfully.",
+    data: result,
+  });
+});
+
+const updateProduct = catchAsync(async (req: Request, res: Response) => {
+  const productId = req.params.productId;
+  const updatedData = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    throw new Error("Invalid product ID format");
+  }
+
+  const updatedProduct = await ProductServices.updateProductInDB(productId, updatedData);
+  if (!updatedProduct) {
+    throw new Error("Product not found");
+  }
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Product updated successfully",
+    data: updatedProduct,
+  });
+});
+
+const deleteProduct = catchAsync(async (req: Request, res: Response) => {
+  const { productId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    throw new Error("Invalid product ID format");
+  }
+
+  const result = await ProductServices.deleteProductFromDB(productId);
+  if (!result) {
+    throw new Error("Product not found");
+  }
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Product deleted successfully",
+    data: null, // No data to return for deletion
+  });
+});
+
+export const ProductController = {
+  createProduct,
+  getAllProducts,
+  getSingleProduct,
+  updateProduct,
+  deleteProduct,
 };
-
-
-
-const getAllProducts = async (req: Request, res: Response) => {
-    try {
-        const result = await ProductServices.getAllProductsFromDB(req);
-
-        res.status(200).json({
-            success: true,
-            message: "Products are retrieved successfully.",
-            data: result,
-        });
-
-    } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: err
-        });
-    }
-};
-
-const getSingleProduct = async (req: Request, res: Response) => {
-    try {
-        const productId = req.params.productId;
-
-        if (!mongoose.Types.ObjectId.isValid(productId)) { // ✅ Validate ObjectId
-            return res.status(400).json({
-                success: false,
-                message: "Invalid product ID format",
-            });
-        }
-
-        const result = await ProductServices.getSingleProductFromDB(productId);
-
-        if (!result) {
-             res.status(404).json({
-                success: false,
-                message: "Product not found",
-                error: {
-                    name: "NotFoundError",
-                    message: `No product found with ID: ${productId}`,
-                },
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Single product retrieved successfully.",
-            data: result,
-        });
-
-    } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: err 
-        });
-    }
-};
-
-const updateProduct = async (req: Request, res: Response) => {
-    try {
-        const productId = req.params.productId;
-
-        if (!mongoose.Types.ObjectId.isValid(productId)) { 
-            return res.status(400).json({
-                success: false,
-                message: "Invalid product ID format",
-            });
-        }
-
-        const updatedData = req.body;
-
-        const updatedProduct = await ProductServices.updateProductInDB(productId, updatedData);
-
-        if (!updatedProduct) {
-             res.status(404).json({
-                success: false,
-                message: "Product not found",
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Product updated successfully",
-            data: updatedProduct,
-        });
-    } catch (err) {
-
-        res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: err 
-        });
-    }
-};
-
-const deleteProduct = async (req: Request, res: Response) => {
-    try {
-        const { productId } = req.params;
-
-        if (!mongoose.Types.ObjectId.isValid(productId)) { 
-             return res.status(400).json({
-                success: false,
-                message: "Invalid product ID format",
-            });
-        }
-
-        const result = await ProductServices.deleteProductFromDB(productId);
-
-        if (!result) {
-             res.status(404).json({
-                success: false,
-                message: "Product not found",
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Product deleted successfully",
-        });
-
-    } catch (err) {
-
-        res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: err 
-        });
-    }
-};
-
-
-export const ProductController = { createProduct, getAllProducts, getSingleProduct, updateProduct, deleteProduct };

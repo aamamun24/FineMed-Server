@@ -1,72 +1,110 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
+import httpStatus from "http-status";
+import catchAsync from "../../../utils/catchAsync";
+import sendResponse from "../../../utils/sendResponse";
 import { OrderServices } from "./order.service";
 
-type ValidationError = {
-    name: string;
-    errors: Record<string, { message: string; name: string; properties: unknown }>;
+const createOrder = catchAsync(async (req: Request, res: Response) => {
+  const order = req.body;
+  const result = await OrderServices.createOrderIntoDB(order);
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "Order placed successfully.",
+    data: result,
+  });
+});
+
+const getAllOrders = catchAsync(async (req: Request, res: Response) => {
+  const result = await OrderServices.getAllOrdersFromDB();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Orders retrieved successfully.",
+    data: result,
+  });
+});
+
+const getSingleOrder = catchAsync(async (req: Request, res: Response) => {
+  const { orderId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    throw new Error("Invalid order ID format");
+  }
+
+  const result = await OrderServices.getSingleOrderFromDB(orderId);
+  if (!result) {
+    throw new Error(`No order found with ID: ${orderId}`);
+  }
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Order retrieved successfully.",
+    data: result,
+  });
+});
+
+const updateOrder = catchAsync(async (req: Request, res: Response) => {
+  const { orderId } = req.params;
+  const updatedData = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    throw new Error("Invalid order ID format");
+  }
+
+  const result = await OrderServices.updateOrderInDB(orderId, updatedData);
+  if (!result) {
+    throw new Error("Order not found");
+  }
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Order updated successfully.",
+    data: result,
+  });
+});
+
+const deleteOrder = catchAsync(async (req: Request, res: Response) => {
+  const { orderId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    throw new Error("Invalid order ID format");
+  }
+
+  const result = await OrderServices.deleteOrderFromDB(orderId);
+  if (!result) {
+    throw new Error("Order not found");
+  }
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Order deleted successfully.",
+    data: null,
+  });
+});
+
+const getRevenue = catchAsync(async (req: Request, res: Response) => {
+  const totalRevenue = await OrderServices.calculateRevenue();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Revenue calculated successfully.",
+    data: { totalRevenue },
+  });
+});
+
+export const OrderController = {
+  createOrder,
+  getAllOrders,
+  getSingleOrder,
+  updateOrder,
+  deleteOrder,
+  getRevenue,
 };
-
-const createOrder = async (req: Request, res: Response) => {
-    try {
-        const order = req.body;
-        const result = await OrderServices.createOrderIntoDB(order);
-
-        return res.status(201).json({
-            success: true,
-            message: "Order placed successfully.",
-            data: result,
-        });
-    } catch (err: unknown) {
-        if ((err as ValidationError).name === "ValidationError") {
-            const errors: Record<string, { message: string; name: string; properties: unknown }> = {};
-
-            Object.keys((err as ValidationError).errors).forEach((key) => {
-                errors[key] = {
-                    message: (err as ValidationError).errors[key].message,
-                    name: (err as ValidationError).errors[key].name,
-                    properties: (err as ValidationError).errors[key].properties,
-                };
-            });
-
-            return res.status(400).json({
-                success: false,
-                message: "Validation failed",
-                error: {
-                    name: "ValidationError",
-                    errors,
-                },
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: (err as Error).message || "Something went wrong",
-        });
-    }
-};
-
-
-
-
-const getRevenue = async (req: Request, res: Response)=> {
-    try {
-        const totalRevenue = await OrderServices.calculateRevenue();
-
-        return res.status(200).json({
-            success: true,
-            message: "Revenue calculated successfully",
-            data: {
-                totalRevenue,
-            },
-        });
-    } catch (err: unknown) {
-        return res.status(500).json({
-            success: false,
-            message: "Internal Server Error",
-            error: (err as Error).message || "Something went wrong",
-        });
-    }
-};
-
-export const OrderController = { createOrder, getRevenue };

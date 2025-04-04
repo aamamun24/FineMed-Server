@@ -4,6 +4,7 @@ import { USER_ROLE } from "./user.constant";
 
 export interface TUser extends Document {
   email: string;
+  name: string,
   password: string;
   passwordChangedAt?: Date;
   role: "admin" | "customer";

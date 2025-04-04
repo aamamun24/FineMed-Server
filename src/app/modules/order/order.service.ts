@@ -1,101 +1,156 @@
+import mongoose from "mongoose";
 import { Order } from "./order.interface";
 import { OrderModel } from "./order.model";
 import { ProductModel } from "../product/product.model";
 
 const createOrderIntoDB = async (order: Order) => {
-    const { product, quantity } = order;
+  const { product, quantity } = order;
 
-    // Find the product in the database
-    const productInDB = await ProductModel.findById(product);
+  // Find the product in the database
+  const productInDB = await ProductModel.findById(product);
+  if (!productInDB) {
+    throw new Error("Product not found");
+  }
 
-    if (!productInDB) {
-        throw new Error("Product not found");
-    }
+  // Check if the product has enough stock
+  if (productInDB.quantity < quantity) {
+    throw new Error("Insufficient stock available for this order");
+  }
 
-    // Check if the product has enough stock
-    if (productInDB.quantity < quantity) {
-        throw new Error("Insufficient stock available for this order");
-    }
+  // Calculate new quantity and inStock status
+  const newQuantity = productInDB.quantity - quantity;
+  const inStock = newQuantity > 0;
 
-    // Log current quantity to help debug
-    console.log(`Current quantity of product ${productInDB.name}: ${productInDB.quantity}`);
+  // Update product stock
+  const updatedProduct = await ProductModel.findByIdAndUpdate(
+    product,
+    {
+      $inc: { quantity: -quantity }, // Decrease quantity
+      $set: { inStock }, // Update inStock status
+    },
+    { new: true }
+  );
 
-    // Determine if we need to set inStock to false (when quantity goes to 0)
-    const newQuantity = productInDB.quantity - quantity;
-    const inStock = newQuantity > 0;
+  if (!updatedProduct) {
+    throw new Error("Failed to update product stock");
+  }
 
-    // Reduce the quantity in the product model and update inStock status
-    const updatedProduct = await ProductModel.findByIdAndUpdate(
-        product,
-        {
-            $inc: { quantity: -quantity },  // Decrease quantity by the ordered quantity
-            $set: { inStock }  // Set inStock to false if quantity is 0 or less
-        },
-        { new: true }  // Return the updated document
-    );
-
-    // Log updated quantity to help debug
-    console.log(`Updated quantity of product ${productInDB.name}: ${updatedProduct?.quantity}`);
-
-    // Check if the product is successfully updated
-    if (!updatedProduct) {
-        throw new Error("Failed to update product stock");
-    }
-
-    // Create the order in the order collection
-    const newOrder = await OrderModel.create(order);
-
-    return newOrder;
+  // Create the order
+  return await OrderModel.create(order);
 };
 
+const getAllOrdersFromDB = async () => {
+  return await OrderModel.find().populate("product"); // Populate product details
+};
 
+const getSingleOrderFromDB = async (orderId: string) => {
+  return await OrderModel.findById(orderId).populate("product");
+};
 
+const updateOrderInDB = async (orderId: string, updatedData: Partial<Order>) => {
+  const existingOrder = await OrderModel.findById(orderId);
+  if (!existingOrder) {
+    throw new Error("Order not found");
+  }
+
+  // If quantity is updated, adjust product stock accordingly
+  if (updatedData.quantity && updatedData.quantity !== existingOrder.quantity) {
+    const product = await ProductModel.findById(existingOrder.product);
+    if (!product) {
+      throw new Error("Associated product not found");
+    }
+
+    // Calculate the difference in quantity
+    const quantityDiff = existingOrder.quantity - updatedData.quantity;
+    const newQuantity = product.quantity + quantityDiff;
+
+    if (newQuantity < 0) {
+      throw new Error("Insufficient stock to update order");
+    }
+
+    const inStock = newQuantity > 0;
+    await ProductModel.findByIdAndUpdate(
+      existingOrder.product,
+      {
+        $set: { quantity: newQuantity, inStock },
+      },
+      { new: true }
+    );
+  }
+
+  return await OrderModel.findByIdAndUpdate(
+    orderId,
+    { $set: updatedData },
+    { new: true }
+  ).populate("product");
+};
+
+const deleteOrderFromDB = async (orderId: string) => {
+  const order = await OrderModel.findById(orderId);
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  // Restore product stock
+  const product = await ProductModel.findById(order.product);
+  if (product) {
+    const newQuantity = product.quantity + order.quantity;
+    const inStock = newQuantity > 0;
+    await ProductModel.findByIdAndUpdate(
+      order.product,
+      {
+        $set: { quantity: newQuantity, inStock },
+      },
+      { new: true }
+    );
+  }
+
+  return await OrderModel.findByIdAndDelete(orderId);
+};
 
 const calculateRevenue = async () => {
-    const revenue = await OrderModel.aggregate([
-        {
-            $lookup: {
-                from: "products", // The name of the product collection
-                localField: "product",
-                foreignField: "_id",
-                as: "productDetails"
-            }
+  const revenue = await OrderModel.aggregate([
+    {
+      $lookup: {
+        from: "products",
+        localField: "product",
+        foreignField: "_id",
+        as: "productDetails",
+      },
+    },
+    {
+      $unwind: "$productDetails",
+    },
+    {
+      $project: {
+        totalPrice: {
+          $multiply: ["$quantity", "$productDetails.price"],
         },
-        {
-            $unwind: "$productDetails" // Flatten the productDetails array
-        },
-        {
-            $project: {
-                totalPrice: {
-                    $multiply: ["$quantity", "$productDetails.price"] // Multiply quantity with product price
-                }
-            }
-        },
-        {
-            $group: {
-                _id: null, // Group all orders together
-                totalRevenue: { $sum: "$totalPrice" } // Sum up the totalPrice for all orders
-            }
-        },
-        {
-            $project: {
-                _id: 0, // Exclude _id from the result
-                totalRevenue: 1 // Include only the totalRevenue
-            }
-        }
-    ]);
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalRevenue: { $sum: "$totalPrice" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalRevenue: 1,
+      },
+    },
+  ]);
 
-    return revenue.length > 0 ? revenue[0].totalRevenue : 0;
+  return revenue.length > 0 ? revenue[0].totalRevenue : 0;
 };
-
-
-
-
-
-
-
 
 export const OrderServices = {
-    createOrderIntoDB,
-    calculateRevenue
+  createOrderIntoDB,
+  getAllOrdersFromDB,
+  getSingleOrderFromDB,
+  updateOrderInDB,
+  deleteOrderFromDB,
+  calculateRevenue,
 };
+
