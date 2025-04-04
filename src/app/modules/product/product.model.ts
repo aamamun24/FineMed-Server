@@ -59,7 +59,10 @@ const productSchema = new Schema({
   inStock: {
     type: Boolean,
     required: [true, "In-stock status is required"],
-  },
+  }
+},
+{
+  timestamps: true,
 });
 
 export const ProductModel = model<Product>("Product", productSchema);

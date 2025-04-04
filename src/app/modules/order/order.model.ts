@@ -4,15 +4,10 @@ import validator from "validator";
 
 const orderSchema = new Schema<Order>(
   {
-    email: {
-      type: String,
-      required: [true, "Customer email is required"],
-      trim: true,
-      lowercase: true,
-      validate: {
-        validator: (value: string) => validator.isEmail(value),
-        message: "Invalid email format",
-      },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User ID is required"],
     },
     product: {
       type: Schema.Types.ObjectId,

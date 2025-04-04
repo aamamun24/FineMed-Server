@@ -2,19 +2,28 @@ import mongoose from "mongoose";
 import { Order } from "./order.interface";
 import { OrderModel } from "./order.model";
 import { ProductModel } from "../product/product.model";
+import { UserModel } from "../User/user.model";
+import AppError from "../../errors/AppError";
+import httpStatus from 'http-status';
 
 const createOrderIntoDB = async (order: Order) => {
-  const { product, quantity } = order;
+  const { userId, product, quantity } = order;
 
   // Find the product in the database
   const productInDB = await ProductModel.findById(product);
   if (!productInDB) {
-    throw new Error("Product not found");
+    throw new AppError(httpStatus.NOT_FOUND,"Product not found");
+  }
+
+  const userInDB = await UserModel.findById(userId);
+  if (!userInDB) {
+    throw new AppError(httpStatus.NOT_FOUND,"User not found");
+
   }
 
   // Check if the product has enough stock
   if (productInDB.quantity < quantity) {
-    throw new Error("Insufficient stock available for this order");
+    throw new Error("Insufficient stock! ");
   }
 
   // Calculate new quantity and inStock status

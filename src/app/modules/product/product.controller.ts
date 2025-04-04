@@ -18,13 +18,13 @@ const createProduct = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllProducts = catchAsync(async (req: Request, res: Response) => {
-  const result = await ProductServices.getAllProductsFromDB(req);
+  const result = await ProductServices.getAllProductsFromDB(req.query); // Pass req.query, not req
 
   sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Products are retrieved successfully.",
-    data: result,
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Products are retrieved successfully.",
+      data: result,
   });
 });
 
