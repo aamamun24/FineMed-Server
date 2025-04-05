@@ -11,6 +11,10 @@ router.post(
   validateRequest(UserValidation.createUserValidationSchema),
   userController.createUser,
 );
+
+
+router.post('/me', userController.getMe);
+
 router.patch("/:userId/toggle-status",auth("admin"), userController.toggleUserStatus);
 router.patch('/update-password/:userId',auth("admin","customer"), userController.updatePassword);
 

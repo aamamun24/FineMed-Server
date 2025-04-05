@@ -9,7 +9,7 @@ export interface Order{
     products: TProducts;
     quantity: number;
     totalPrice: number;
-    status: 'in-progress' | 'delivered';
+    status: 'paid'|'in-progress' | 'delivered';
     createdAt: Date;
     updatedAt: Date;
 }

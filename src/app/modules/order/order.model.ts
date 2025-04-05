@@ -51,7 +51,7 @@ const orderSchema = new Schema<Order>(
     },
     status: {
       type: String,
-      enum: ["in-progress", "delivered"],
+      enum: ["paid","in-progress", "delivered"],
       default: "in-progress",
       required: true,
     },

@@ -48,8 +48,26 @@ const updatePassword = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  const { email } = req.body; // Get email from body instead of query
+
+  if (!email) {
+    throw new AppError(400, "Email is required");
+  }
+
+  const user = await userServices.getMeFromDB(email);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User data retrieved successfully",
+    data: user,
+  });
+});
+
 export const userController = {
   createUser,
   toggleUserStatus,
-  updatePassword
+  updatePassword,
+  getMe
 };

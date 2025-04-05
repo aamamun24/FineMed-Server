@@ -10,6 +10,7 @@ export interface Product {
     name: string;
     brand: string;
     price: number;
+    image: string;
     type: BicycleType;
     description: string;
     quantity: number;

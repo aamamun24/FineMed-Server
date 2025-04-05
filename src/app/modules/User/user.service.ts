@@ -51,10 +51,19 @@ const updateUserPassword = async (
   return { message: "Password updated successfully" };
 };
 
+const getMeFromDB = async (email: string) => {
+  const user = await UserModel.findOne({ email }).select('-password'); // Exclude password from result
+  
+  if (!user) {
+    throw new AppError(404, "User not found!");
+  }
 
+  return user;
+};
 
 export const userServices = {
   createUserIntoDB,
   toggleUserStatus,
-  updateUserPassword
+  updateUserPassword,
+  getMeFromDB
 }

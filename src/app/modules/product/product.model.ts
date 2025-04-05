@@ -12,6 +12,11 @@ const productSchema = new Schema({
       message: "Product name must be between 3 and 50 characters",
     },
   },
+  image: {
+    type: String,
+    required: [true, "Image link is required"],
+    default:"https://iili.io/35DtmLF.webp"
+  },
   brand: {
     type: String,
     required: [true, "Brand name is required"],
@@ -59,6 +64,7 @@ const productSchema = new Schema({
   inStock: {
     type: Boolean,
     required: [true, "In-stock status is required"],
+    default: true
   }
 },
 {
