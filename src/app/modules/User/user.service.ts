@@ -28,28 +28,32 @@ const toggleUserStatus = async (userId: string) => {
 
 
 const updateUserPassword = async (
-  userId: string,
+  userEmail: string,
   oldPassword: string,
   newPassword: string
 ) => {
-  const user = await UserModel.findById(userId).select("+password");
+  // Find user by email instead of ID
+  const user = await UserModel.findOne({ email: userEmail }).select("+password");
   if (!user) {
     throw new AppError(404, "User not found");
   }
 
+  // Check if old password is correct
   const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
   if (!isOldPasswordCorrect) {
     throw new AppError(401, "Old password is incorrect");
   }
 
-  // Update password and passwordChangedAt
-  user.password = newPassword;
+  // Hash the new password
+  const hashedNewPassword = await bcrypt.hash(newPassword, 10); // 10 salt rounds
+  user.password = hashedNewPassword;
   user.passwordChangedAt = new Date();
 
   await user.save();
 
   return { message: "Password updated successfully" };
 };
+
 
 const getMeFromDB = async (email: string) => {
   const user = await UserModel.findOne({ email }).select('-password'); // Exclude password from result
