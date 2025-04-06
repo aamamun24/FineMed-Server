@@ -40,13 +40,6 @@ const updateUserPassword = async (
     throw new AppError(404, "User not found");
   }
 
-  // // Log details for debugging
-  // console.log("userEmail:", userEmail);
-  // console.log("oldPassword (raw):", JSON.stringify(oldPassword)); // Show exact string
-  // console.log("user.password (hashed):", user.password);
-  // console.log("oldPassword length:", oldPassword.length);
-  // console.log("user.password length:", user.password.length);
-
   // Verify password
   const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
 
@@ -63,7 +56,13 @@ const updateUserPassword = async (
 };
 
 
-
+const getAllUsersFromDB = async () => {
+  const users = await UserModel.find().select("-password"); // Exclude password field
+  if (!users || users.length === 0) {
+    throw new AppError(404, "No users found!");
+  }
+  return users;
+};
 
 
 
@@ -99,5 +98,6 @@ export const userServices = {
   toggleUserStatus,
   updateUserPassword,
   getMeFromDB,
-  updateUserData
+  updateUserData,
+  getAllUsersFromDB
 }

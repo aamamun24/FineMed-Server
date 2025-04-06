@@ -7,10 +7,10 @@ import httpStatus from "http-status";
 import QueryBuilder from "../../builder/QueryBuilder";
 
 const createOrderIntoDB = async (order: Order) => {
-  const { userId, products } = order;
+  const { userEmail, products } = order;
 
   // Check if user exists
-  const userInDB = await UserModel.findById(userId);
+  const userInDB = await UserModel.find({userEmail});
   if (!userInDB) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }

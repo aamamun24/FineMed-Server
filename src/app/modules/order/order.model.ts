@@ -1,62 +1,47 @@
 import { model, Schema, Types } from "mongoose";
-import validator from "validator";
+import { Order } from "./order.interface";
 
-type TProducts = {
-  productId: Types.ObjectId;
-  quantity: number;
-}[];
-
-interface Order {
-  userId: Types.ObjectId;
-  products: TProducts;
-  totalPrice: number;
-  status: "in-progress" | "delivered";
-  createdAt: Date;
-  updatedAt: Date;
-}
-
+// Define the order schema
 const orderSchema = new Schema<Order>(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: [true, "User ID is required"],
+    userEmail: {
+      type: String,
+      required: [true, "User email is required"],
     },
     products: [
       {
         productId: {
           type: Schema.Types.ObjectId,
-          ref: "Product",
+          ref: "Product", // References the Product model
           required: [true, "Product ID is required"],
         },
         quantity: {
           type: Number,
           required: [true, "Quantity is required"],
-          min: [1, "Quantity must be at least 1"],
-          validate: {
-            validator: (value: number) => Number.isInteger(value),
-            message: "Quantity must be a whole number",
-          },
         },
       },
     ],
     totalPrice: {
       type: Number,
       required: [true, "Total price is required"],
-      min: [0, "Total price cannot be negative"],
-      validate: {
-        validator: (value: number) => validator.isFloat(value.toString(), { min: 0 }),
-        message: "Total price must be a valid number greater than or equal to 0",
-      },
+    },
+    address: {
+      type: String,
+      required: [true, "Address is required"],
+    },
+    contactNumber: {
+      type: String,
+      required: [true, "Contact number is required"],
     },
     status: {
       type: String,
-      enum: ["paid","in-progress", "delivered"],
-      default: "in-progress",
-      required: true,
+      enum: ["unpaid", "paid", "progressing", "delivered"], // Keep enum for valid status values
+      default: "unpaid", // Default to "unpaid"
+      required: [true, "Status is required"],
     },
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );
 
+// Export the Order model
 export const OrderModel = model<Order>("Order", orderSchema);

@@ -135,10 +135,35 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    throw new AppError(401, "No access-token provided");
+  }
+
+  let decoded: JwtPayload;
+  try {
+    decoded = verifyToken(token, config.jwt_access_secret as string);
+  } catch (error) {
+    throw new AppError(401, "Invalid or expired token");
+  }
+
+
+  const users = await userServices.getAllUsersFromDB();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "All users retrieved successfully",
+    data: users,
+  });
+});
+
 export const userController = {
   createUser,
   toggleUserStatus,
   updatePassword,
   getMe,
-  updateUser
+  updateUser,
+  getAllUsers
 };

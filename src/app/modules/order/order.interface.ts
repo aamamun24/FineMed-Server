@@ -1,15 +1,19 @@
 import { Types } from "mongoose";
-type TProducts = {
-    productId: Types.ObjectId,
-    quantity: number
-}[];
 
-export interface Order{
-    userId: Types.ObjectId;
-    products: TProducts;
+// Define TProducts type for the products array
+type TProducts = {
+    productId: Types.ObjectId;
     quantity: number;
+  }[];
+  
+  // Define the Order interface
+  export interface Order {
+    userEmail: string;
+    products: TProducts;
     totalPrice: number;
-    status: 'paid'|'in-progress' | 'delivered';
+    address: string;
+    contactNumber: string;
+    status: "unpaid" | "paid" | "progressing" | "delivered";
     createdAt: Date;
     updatedAt: Date;
-}
+  }

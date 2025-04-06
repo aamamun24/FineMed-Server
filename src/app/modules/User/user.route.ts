@@ -14,6 +14,7 @@ router.post(
 
 
 router.get('/me',auth("admin","customer"), userController.getMe);
+router.get('/',auth("admin"), userController.getAllUsers);
 
 router.patch("/:userId/toggle-status",auth("admin"), userController.toggleUserStatus);
 router.patch('/update-password',auth("admin","customer"), userController.updatePassword);
