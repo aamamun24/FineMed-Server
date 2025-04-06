@@ -2,6 +2,7 @@ import AppError from "../../errors/AppError";
 import { TUser } from "./user.interface";
 import { UserModel } from "./user.model";
 import bcrypt from "bcrypt"; // Make sure bcrypt is installed
+import config from "../../../config";
 const createUserIntoDB = async(payload: TUser) => {
   const newUser = await UserModel.create(payload); 
   if(!newUser){
@@ -42,11 +43,8 @@ const updateUserPassword = async (
   const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
   if (!isOldPasswordCorrect) {
     throw new AppError(401, "Old password is incorrect");
-  }
-
-  // Hash the new password
-  const hashedNewPassword = await bcrypt.hash(newPassword, 10); // 10 salt rounds
-  user.password = hashedNewPassword;
+    }
+  user.password = newPassword;
   user.passwordChangedAt = new Date();
 
   await user.save();
@@ -55,8 +53,10 @@ const updateUserPassword = async (
 };
 
 
+
+
 const getMeFromDB = async (email: string) => {
-  const user = await UserModel.findOne({ email }).select('-password'); // Exclude password from result
+  const user = await UserModel.findOne({ email }).select('-password');
   
   if (!user) {
     throw new AppError(404, "User not found!");

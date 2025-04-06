@@ -13,9 +13,9 @@ router.post(
 );
 
 
-router.post('/me', userController.getMe);
+router.get('/me',auth("admin","customer"), userController.getMe);
 
 router.patch("/:userId/toggle-status",auth("admin"), userController.toggleUserStatus);
-router.patch('/update-password/:userEmail',auth("admin","customer"), userController.updatePassword);
+router.patch('/update-password',auth("admin","customer"), userController.updatePassword);
 
 export const UserRoutes = router;

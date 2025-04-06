@@ -36,8 +36,6 @@ const toggleUserStatus = catchAsync(async (req: Request, res: Response) => {
 
 const updatePassword = catchAsync(async (req: Request, res: Response) => {
   const { oldPassword, newPassword } = req.body;
-  const { userEmail } = req.params; // Extract userEmail from URL params
-
 
   if (!oldPassword || !newPassword) {
     throw new AppError(400, "Both old and new passwords are required");
@@ -59,11 +57,6 @@ const updatePassword = catchAsync(async (req: Request, res: Response) => {
     throw new AppError(401, "Invalid or expired token");
   }
 
-  // Compare userEmail from params with decoded userEmail
-  if (decoded.userEmail !== userEmail) {
-    throw new AppError(403, "Forbidden: You cannot change another user's password");
-  }
-
   // Pass authenticated userEmail to service
   const result = await userServices.updateUserPassword(
     decoded.userEmail,
@@ -81,14 +74,30 @@ const updatePassword = catchAsync(async (req: Request, res: Response) => {
 
 
 
-const getMe = catchAsync(async (req: Request, res: Response) => {
-  const { email } = req.body; // Get email from body instead of query
+const getMe = catchAsync(async (req,res) => {
+  // Extract token from Authorization header
+  const token = req.headers.authorization;
 
-  if (!email) {
-    throw new AppError(400, "Email is required");
+
+  if (!token) {
+    throw new AppError(401, "No access-token provided");
   }
 
-  const user = await userServices.getMeFromDB(email);
+  // Verify token using the utility function
+  let decoded: JwtPayload;
+  try {
+    decoded = verifyToken(token, config.jwt_access_secret as string);
+  } catch (error) {
+    throw new AppError(401, "Invalid or expired token");
+  }
+
+  const { userEmail } = decoded; // Get email from body instead of query
+
+  if (!userEmail) {
+    throw new AppError(400, "Email extraction failed!");
+  }
+
+  const user = await userServices.getMeFromDB(userEmail);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
