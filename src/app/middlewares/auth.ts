@@ -30,7 +30,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
     const user = await UserModel.isUserExistsByEmail(userEmail);
 
     if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
+      throw new AppError(httpStatus.NOT_FOUND, 'User is not found. Login using correct email!');
     }
     // checking if the user is already deleted
 

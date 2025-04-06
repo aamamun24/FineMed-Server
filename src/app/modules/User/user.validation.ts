@@ -41,7 +41,28 @@ const createUserValidationSchema = z.object({
   })
 });
 
+const updateUserValidationSchema = z.object({
+  body: z.object({
+    email: z
+      .string({
+        invalid_type_error: "Email must be a string",
+      })
+      .email({ message: "Invalid email format" })
+      .trim()
+      .toLowerCase()
+      .optional(), // Email is optional for partial updates
+
+    name: z
+      .string({
+        invalid_type_error: "Name must be a string",
+      })
+      .min(1, { message: "Name must be at least 1 character long" })
+      .max(50, { message: "Name cannot be more than 50 characters" })
+      .optional(), // Name is optional for partial updates
+  }),
+});
 
 export const UserValidation = {
   createUserValidationSchema,
+  updateUserValidationSchema, // Export new schema
 };

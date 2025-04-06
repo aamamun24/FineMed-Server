@@ -17,5 +17,13 @@ router.get('/me',auth("admin","customer"), userController.getMe);
 
 router.patch("/:userId/toggle-status",auth("admin"), userController.toggleUserStatus);
 router.patch('/update-password',auth("admin","customer"), userController.updatePassword);
+router.patch(
+  "/",
+  auth("admin", "customer"),
+  validateRequest(UserValidation.updateUserValidationSchema),
+  userController.updateUser
+);
+
+
 
 export const UserRoutes = router;

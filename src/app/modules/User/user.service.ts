@@ -28,22 +28,32 @@ const toggleUserStatus = async (userId: string) => {
 };
 
 
+
+
 const updateUserPassword = async (
   userEmail: string,
   oldPassword: string,
   newPassword: string
 ) => {
-  // Find user by email instead of ID
   const user = await UserModel.findOne({ email: userEmail }).select("+password");
   if (!user) {
     throw new AppError(404, "User not found");
   }
 
-  // Check if old password is correct
+  // // Log details for debugging
+  // console.log("userEmail:", userEmail);
+  // console.log("oldPassword (raw):", JSON.stringify(oldPassword)); // Show exact string
+  // console.log("user.password (hashed):", user.password);
+  // console.log("oldPassword length:", oldPassword.length);
+  // console.log("user.password length:", user.password.length);
+
+  // Verify password
   const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+
   if (!isOldPasswordCorrect) {
     throw new AppError(401, "Old password is incorrect");
-    }
+  }
+
   user.password = newPassword;
   user.passwordChangedAt = new Date();
 
@@ -51,6 +61,9 @@ const updateUserPassword = async (
 
   return { message: "Password updated successfully" };
 };
+
+
+
 
 
 
@@ -65,9 +78,26 @@ const getMeFromDB = async (email: string) => {
   return user;
 };
 
+
+// New service function to update user data (name, email)
+const updateUserData = async (userEmail: string, updates: Partial<TUser>) => {
+  const user = await UserModel.findOne({ email: userEmail });
+  if (!user) {
+    throw new AppError(404, "User not found");
+  }
+
+  // Update only the provided fields (name, email)
+  if (updates.name) user.name = updates.name;
+  if (updates.email) user.email = updates.email;
+
+  await user.save();
+  return user;
+};
+
 export const userServices = {
   createUserIntoDB,
   toggleUserStatus,
   updateUserPassword,
-  getMeFromDB
+  getMeFromDB,
+  updateUserData
 }
