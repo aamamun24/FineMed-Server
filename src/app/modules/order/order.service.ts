@@ -9,6 +9,7 @@ import QueryBuilder from "../../builder/QueryBuilder";
 const createOrderIntoDB = async (order: Order) => {
   const { userEmail, products } = order;
 
+  console.log("order: ",order)
   // Check if user exists
   const userInDB = await UserModel.find({userEmail});
   if (!userInDB) {
@@ -37,6 +38,7 @@ const createOrderIntoDB = async (order: Order) => {
     // Calculate total price
     totalPrice += productInDB.price * item.quantity;
   }
+
 
   // Create the order
   return await OrderModel.create({ ...order, totalPrice });

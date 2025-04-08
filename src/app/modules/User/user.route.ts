@@ -7,7 +7,7 @@ import auth from "../../middlewares/auth";
 const router = express.Router();
 
 router.post(
-  '/',
+  '/register',
   validateRequest(UserValidation.createUserValidationSchema),
   userController.createUser,
 );

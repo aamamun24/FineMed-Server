@@ -13,7 +13,8 @@ type TProducts = {
     totalPrice: number;
     address: string;
     contactNumber: string;
-    status: "unpaid" | "paid" | "progressing" | "delivered";
+    status: "unpaid" | "paid" | "progressing" | "delivered" | "pending";
     createdAt: Date;
     updatedAt: Date;
+    transactionId : string;
   }

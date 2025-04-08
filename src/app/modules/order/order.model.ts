@@ -35,10 +35,14 @@ const orderSchema = new Schema<Order>(
     },
     status: {
       type: String,
-      enum: ["unpaid", "paid", "progressing", "delivered"], // Keep enum for valid status values
+      enum: ["unpaid", "paid", "progressing", "delivered","pending"], // Keep enum for valid status values
       default: "unpaid", // Default to "unpaid"
       required: [true, "Status is required"],
     },
+    transactionId : {
+      type: String,
+      default: "TRANS_unpaid",
+    }
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );

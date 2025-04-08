@@ -4,22 +4,87 @@ import httpStatus from "http-status";
 import catchAsync from "../../../utils/catchAsync";
 import sendResponse from "../../../utils/sendResponse";
 import { OrderServices } from "./order.service";
+import SSLCommerzPayment from "sslcommerz-lts";
 
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const order = req.body;
-  const result = await OrderServices.createOrderIntoDB(order);
+
+  // payment 
+  const store_id = 'test67f513f2c14ae';
+  const store_passwd = 'test67f513f2c14ae@ssl';
+  const is_live = false;
+
+// Generate dynamic transaction ID
+const transactionId = `TRANS_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
+
+const data = {
+    total_amount: order.totalPrice,
+    currency: 'BDT',
+    tran_id: transactionId,
+    success_url: `http://localhost:5100/api/orders/payment-success/${transactionId}`,
+    fail_url: `http://localhost:5100/api/orders/payment-failed/${transactionId}`,
+    cancel_url: `http://localhost:5100/api/orders/payment-cancel/orders/${transactionId}`,
+    ipn_url: 'http://localhost:3030/ipn',
+    shipping_method: 'Courier',
+    product_name: "baler product",
+    product_category: 'Electronic',
+    product_profile: 'general',
+    cus_name: 'Customer Name',
+    cus_email: 'hrsajib001@gmail.com',
+    cus_add1: 'Dhaka',
+    cus_add2: 'Dhaka',
+    cus_city: 'Dhaka',
+    cus_state: 'Dhaka',
+    cus_postcode: '1000',
+    cus_country: 'Bangladesh',
+    cus_phone: order.contactNumber,
+    cus_fax: '01711111111',
+    ship_name: 'Customer Name',
+    ship_add1: 'Dhaka',
+    ship_add2: 'Dhaka',
+    ship_city: 'Dhaka',
+    ship_state: 'Dhaka',
+    ship_postcode: 1000,
+    ship_country: 'Bangladesh',
+  };
+
+  const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
+
+  const apiResponse = await sslcz.init(data); // 🔥 Await here
+  // console.log("📦 Full SSLCommerz API GatewayPageURL:", apiResponse.GatewayPageURL);
+
+  let GatewayPageURL = apiResponse?.GatewayPageURL;
+
+  if (!GatewayPageURL) {
+    console.log("❌ No GatewayPageURL returned");
+    throw new Error("Failed to generate payment URL");
+  }
+
+
+  
+
+  const result = await OrderServices.createOrderIntoDB({...order,transactionId});
+
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
     message: "Order placed successfully.",
     data: result,
-  });
+  },
+  GatewayPageURL
+  );
 });
+
+
+
+
+
+
+
 
 const getAllOrders = catchAsync(async (req: Request, res: Response) => {
   const result = await OrderServices.getAllOrdersFromDB(req.query);
-
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -27,6 +92,10 @@ const getAllOrders = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
+
+
+
 
 const getSingleOrder = catchAsync(async (req: Request, res: Response) => {
   const { orderId } = req.params;

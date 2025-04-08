@@ -34,7 +34,7 @@ const createOrderValidationSchema = z.object({
       })
       .min(1, { message: "Contact number cannot be empty" }),
     status: z
-      .enum(["unpaid", "paid", "progressing", "delivered"], {
+      .enum(["unpaid", "paid", "progressing", "delivered", "pending"], {
         required_error: "Status is required",
         invalid_type_error: "Status must be a valid string",
       })
@@ -73,7 +73,7 @@ const updateOrderValidationSchema = z.object({
       .min(1, { message: "Contact number cannot be empty" })
       .optional(),
     status: z
-      .enum(["unpaid", "paid", "progressing", "delivered"], {
+      .enum(["unpaid", "paid", "progressing", "delivered", "pending"], {
         invalid_type_error: "Status must be a valid string",
       })
       .optional(),
