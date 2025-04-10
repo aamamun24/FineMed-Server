@@ -11,13 +11,15 @@ const app: Application = express();
 
 // parser
 app.use(express.json());
-app.use(cors({origin:"http://localhost:5173", credentials: true}));
+app.use(cors({origin: [
+    "http://localhost:5173",  // Local development
+    "https://bicycle-store-client-one.vercel.app",  // Vercel frontend
+  ], credentials: true}));
 app.use(cookieParser()); // Add this
 
 // application routes 
     app.use("/api/products", ProductRoutes);
     app.use("/api/orders", OrderRoutes);
-    app.use("/api/users", UserRoutes);
     app.use("/api/users", UserRoutes);
     app.use("/api/auth", AuthRoutes);
     app.use("/", RootRoute);
