@@ -12,6 +12,10 @@ const loginUserIntoDB = async (payload: TLoginUser) => {
     throw new AppError(401,"User not found"); 
   }
 
+  if(user?.status == "deactivated"){
+    throw new AppError(401, "User Deactivated by Admin!");
+  }
+
   // Verify password
   const isPasswordValid = await bcrypt.compare(payload.password, user.password);
   if (!isPasswordValid) {

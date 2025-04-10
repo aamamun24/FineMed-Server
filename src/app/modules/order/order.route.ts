@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
 import { OrderController } from "./order.controller";
@@ -22,7 +22,13 @@ router.patch("/:orderId",validateRequest(OrderValidation.updateOrderValidationSc
 // Delete an order by ID
 router.delete("/:orderId",auth("admin"), OrderController.deleteOrder);
 
-
+router.post("/ipn",(req:Request, res:Response) => {
+  const { tran_id, status, val_id } = req.body;
+  console.log('IPN Received:', req.body);
+  // Verify payment with SSLCommerz using val_id
+  // Update order status in database
+  // res.status(200).send('IPN Received');
+})
 
 
 router.post("/payment-success/:transID", async (req, res) => {
@@ -40,7 +46,7 @@ router.post("/payment-success/:transID", async (req, res) => {
     if(r){
         const { transactionId ,status } = r;
         if(status == "paid"){
-            res.redirect(`http://localhost:5173/payment-success/${transactionId}`)
+            res.redirect(`https://bicycle-store-client-one.vercel.app/payment-success/${transactionId}`)
         }
     }
 
@@ -65,7 +71,7 @@ router.post("/payment-failed/:transID",async(req,res)=>{
       if(r){
           const { transactionId ,status } = r;
           if(status == "unpaid"){
-              res.redirect(`http://localhost:5173/payment-fail/${transactionId}`)
+              res.redirect(`https://bicycle-store-client-one.vercel.app/payment-fail/${transactionId}`)
           }
       }
 });
