@@ -1,4 +1,4 @@
-import { model, Schema, Types } from "mongoose";
+import { model, Schema } from "mongoose";
 import { Order } from "./order.interface";
 
 // Define the order schema
@@ -11,8 +11,9 @@ const orderSchema = new Schema<Order>(
     products: [
       {
         productId: {
+          _id: false, // 👈 this prevents automatic _id (not working and not causing any prblm also)
           type: Schema.Types.ObjectId,
-          ref: "Product", // References the Product model
+          ref: "Product",
           required: [true, "Product ID is required"],
         },
         quantity: {
@@ -35,17 +36,22 @@ const orderSchema = new Schema<Order>(
     },
     status: {
       type: String,
-      enum: ["unpaid", "paid", "progressing", "delivered","pending"], // Keep enum for valid status values
-      default: "unpaid", // Default to "unpaid"
+      enum: ["pending", "processing", "shipped", "delivered"],
+      default: "pending",
       required: [true, "Status is required"],
     },
-    transactionId : {
+    transactionId: {
       type: String,
-      default: "TRANS_unpaid",
-    }
+      default: "TRANS_pending",
+    },
+    prescriptionVarified: {
+      type: Boolean
+    },
+    prescriptionImageLink: {
+      type: String,
+    },
   },
-  { timestamps: true } // Automatically adds createdAt and updatedAt fields
+  { timestamps: true }
 );
 
-// Export the Order model
 export const OrderModel = model<Order>("Order", orderSchema);

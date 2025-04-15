@@ -23,14 +23,14 @@ const auth = (...requiredRoles: TUserRole[]) => {
       config.jwt_access_secret as string,
     ) as JwtPayload;
 
-    const { role,userEmail,iat } = decoded;
+    const { role,userEmail } = decoded;
     // console.log("from auth : ",decoded)
 
     // checking if the user is exist
     const user = await UserModel.isUserExistsByEmail(userEmail);
 
     if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, 'User is not found. Login using correct email!');
+      throw new AppError(httpStatus.NOT_FOUND, 'User is not found. Login using correct credentials!');
     }
     // checking if the user is already deleted
 

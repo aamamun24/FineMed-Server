@@ -5,9 +5,12 @@ import catchAsync from "../../../utils/catchAsync";
 import sendResponse from "../../../utils/sendResponse";
 import { OrderServices } from "./order.service";
 import SSLCommerzPayment from "sslcommerz-lts";
+import AppError from "../../errors/AppError";
 
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const order = req.body;
+
+  console.log("order-ctrl: ", order)
 
   // payment 
   const store_id = 'test67f513f2c14ae';
@@ -21,16 +24,16 @@ const data = {
     total_amount: order.totalPrice,
     currency: 'BDT',
     tran_id: transactionId,
-    success_url: `https://bi-cycle-store-server-nu.vercel.app/api/orders/payment-success/${transactionId}`,
-    fail_url: `https://bi-cycle-store-server-nu.vercel.app/api/orders/payment-failed/${transactionId}`,
-    cancel_url: `https://bi-cycle-store-server-nu.vercel.app/api/orders/payment-cancel/orders/${transactionId}`,
-    ipn_url: 'https://bi-cycle-store-server-nu.vercel.app/api/orders/ipn',
+    success_url: `http://localhost:5100/api/orders/payment-success/${transactionId}`,
+    fail_url: `http://localhost:5100/api/orders/payment-failed/${transactionId}`,
+    cancel_url: `http://localhost:5100/api/orders/payment-cancel/orders/${transactionId}`,
+    ipn_url: 'http://localhost:5100/api/orders/ipn',
     shipping_method: 'Courier',
     product_name: "baler product",
     product_category: 'Electronic',
     product_profile: 'general',
     cus_name: 'Customer Name',
-    cus_email: 'hrsajib001@gmail.com',
+    cus_email: order.userEmail,
     cus_add1: 'Dhaka',
     cus_add2: 'Dhaka',
     cus_city: 'Dhaka',
@@ -53,7 +56,7 @@ const data = {
   const apiResponse = await sslcz.init(data); // 🔥 Await here
   // console.log("📦 Full SSLCommerz API GatewayPageURL:", apiResponse.GatewayPageURL);
 
-  let GatewayPageURL = apiResponse?.GatewayPageURL;
+  const GatewayPageURL = apiResponse?.GatewayPageURL;
 
   if (!GatewayPageURL) {
     console.log("❌ No GatewayPageURL returned");
@@ -78,11 +81,6 @@ const data = {
 
 
 
-
-
-
-
-
 const getAllOrders = catchAsync(async (req: Request, res: Response) => {
   const result = await OrderServices.getAllOrdersFromDB(req.query);
   sendResponse(res, {
@@ -92,9 +90,6 @@ const getAllOrders = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
-
-
 
 
 const getSingleOrder = catchAsync(async (req: Request, res: Response) => {
@@ -158,16 +153,25 @@ const deleteOrder = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// const getRevenue = catchAsync(async (req: Request, res: Response) => {
-//   const totalRevenue = await OrderServices.calculateRevenue();
 
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: "Revenue calculated successfully.",
-//     data: { totalRevenue },
-//   });
-// });
+
+
+const getMyOrders = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user; 
+  if (!user || !user.userEmail) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access");
+  }
+
+  const orders = await OrderServices.getOrdersByEmail(user.userEmail);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Your orders retrieved successfully",
+    data: orders,
+  });
+});
+
 
 export const OrderController = {
   createOrder,
@@ -175,5 +179,5 @@ export const OrderController = {
   getSingleOrder,
   updateOrder,
   deleteOrder,
-  // getRevenue,
+  getMyOrders
 };

@@ -13,15 +13,26 @@ class QueryBuilder<T> {
         const searchTerm = this.query?.search as string;
         if (searchTerm) {
             this.modelQuery = this.modelQuery.find({
-                $or: searchableFields.map(
-                    (field) => ({
+                $or: [
+                    // Search through the regular fields like name, type, and brand
+                    ...searchableFields.map((field) => ({
                         [field]: { $regex: searchTerm, $options: "i" },
-                    }) as FilterQuery<T>
-                ),
+                    })),
+    
+                    // Search through the symptoms array
+                    {
+                        simptoms: {
+                            $elemMatch: { $regex: searchTerm, $options: "i" },
+                        },
+                    },
+                ],
             });
         }
         return this;
     }
+    
+    
+    
 
     filter() {
         const queryObj = { ...this.query };
@@ -45,7 +56,7 @@ class QueryBuilder<T> {
 
     paginate() {
         const page = this.query?.page ? Number(this.query.page) : 1; // Default page = 1
-        const limit = this.query?.limit ? Number(this.query.limit) : null; // Default to no limit
+        const limit = this.query?.limit ? Number(this.query.limit) : 6; // Default to no limit
     
         if (limit) {
             const skip = (page - 1) * limit;

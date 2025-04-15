@@ -9,14 +9,13 @@ import QueryBuilder from "../../builder/QueryBuilder";
 const createOrderIntoDB = async (order: Order) => {
   const { userEmail, products } = order;
 
-  console.log("order: ",order)
   // Check if user exists
-  const userInDB = await UserModel.find({userEmail});
+  const userInDB = await UserModel.isUserExistsByEmail(userEmail);
   if (!userInDB) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  let totalPrice = 0;
+  let prescriptionVarified = true;
 
   // Validate each product in the order
   for (const item of products) {
@@ -30,19 +29,19 @@ const createOrderIntoDB = async (order: Order) => {
       throw new AppError(httpStatus.BAD_REQUEST, `Insufficient stock for product ${item.productId}`);
     }
 
-    // Update stock
-    productInDB.quantity -= item.quantity;
-    productInDB.inStock = productInDB.quantity > 0;
-    await productInDB.save();
-
-    // Calculate total price
-    totalPrice += productInDB.price * item.quantity;
+    // 🔥 If any product requires prescription, set to false
+    if (productInDB.prescriptionRequired) {
+      prescriptionVarified = false;
+    }
   }
 
+  // Set prescriptionVerified on the order
+  order.prescriptionVarified = prescriptionVarified;
 
   // Create the order
-  return await OrderModel.create({ ...order, totalPrice });
+  return await OrderModel.create(order);
 };
+
 
 const getAllOrdersFromDB = async (query: Record<string, unknown>) => {
   try {
@@ -88,10 +87,6 @@ const updateOrderInDB = async (orderId: string, updatedData: Partial<Order>) => 
         if (newQuantity < 0) {
           throw new AppError(httpStatus.BAD_REQUEST, "Insufficient stock to update order");
         }
-
-        product.quantity = newQuantity;
-        product.inStock = newQuantity > 0;
-        await product.save();
       }
     }
   }
@@ -106,48 +101,13 @@ const deleteOrderFromDB = async (orderId: string) => {
   if (!order) {
     throw new AppError(httpStatus.NOT_FOUND, "Order not found");
   }
-
-  // Restore product stock
-  for (const item of order.products) {
-    const product = await ProductModel.findById(item.productId);
-    if (product) {
-      product.quantity += item.quantity;
-      product.inStock = product.quantity > 0;
-      await product.save();
-    }
-  }
-
   return await OrderModel.findByIdAndDelete(orderId);
 };
 
-// const calculateRevenue = async () => {
-//   const revenue = await OrderModel.aggregate([
-//     { $unwind: "$products" },
-//     {
-//       $lookup: {
-//         from: "products",
-//         localField: "products.productId",
-//         foreignField: "_id",
-//         as: "productDetails",
-//       },
-//     },
-//     { $unwind: "$productDetails" },
-//     {
-//       $project: {
-//         totalPrice: { $multiply: ["$products.quantity", "$productDetails.price"] },
-//       },
-//     },
-//     {
-//       $group: {
-//         _id: null,
-//         totalRevenue: { $sum: "$totalPrice" },
-//       },
-//     },
-//     { $project: { _id: 0, totalRevenue: 1 } },
-//   ]);
-
-//   return revenue.length > 0 ? revenue[0].totalRevenue : 0;
-// };
+const getOrdersByEmail = async (email: string) => {
+  const orders = await OrderModel.find({ userEmail: email }).sort({ createdAt: -1 });
+  return orders;
+};
 
 export const OrderServices = {
   createOrderIntoDB,
@@ -155,5 +115,5 @@ export const OrderServices = {
   getSingleOrderFromDB,
   updateOrderInDB,
   deleteOrderFromDB,
-  // calculateRevenue,
+  getOrdersByEmail
 };
