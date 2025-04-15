@@ -10,7 +10,7 @@ const createProduct = catchAsync(async (req: Request, res: Response) => {
   const result = await ProductServices.createProductIntoDB(product);
 
   sendResponse(res, {
-    statusCode: httpStatus.CREATED, // 201 for resource creation
+    statusCode: httpStatus.CREATED,
     success: true,
     message: "Product is created successfully.",
     data: result,

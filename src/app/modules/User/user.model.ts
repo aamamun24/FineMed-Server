@@ -23,12 +23,6 @@ const userSchema = new Schema<TUser>(
       lowercase: true,
       trim: true,
     },
-    status: {
-      type: String,
-      enum: ["deactivated", "active"],
-      default: "active",
-      required: true,
-    },
     password: {
       type: String,
       required: [true, "Password is required"],

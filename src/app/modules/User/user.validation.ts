@@ -99,15 +99,6 @@ const updateUserValidationSchema = z.object({
       })
       .optional(),
 
-    status: z
-      .string({
-        invalid_type_error: 'Status must be a string',
-      })
-      .refine((val) => ['active', 'deactivated'].includes(val), {
-        message: 'Status must be either "active" or "deactivated"',
-      })
-      .optional(),
-
     isDeleted: z
       .boolean({
         invalid_type_error: 'isDeleted must be a boolean',

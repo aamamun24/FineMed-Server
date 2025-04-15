@@ -1,12 +1,11 @@
-import { Request } from "express";
 import mongoose from "mongoose";
 import QueryBuilder from "../../builder/QueryBuilder";
 import AppError from "../../errors/AppError";
-import { Product } from "./product.interface";
 import { ProductModel } from "./product.model";
+import { IProduct } from "./product.interface";
 
 
-const createProductIntoDB = async (product: Product) => {
+const createProductIntoDB = async (product: IProduct) => {
     return await ProductModel.create(product);
 };
 
@@ -24,8 +23,8 @@ const getAllProductsFromDB = async (query: Record<string, unknown>) => {
         const result = await productsQuery.modelQuery.exec(); // Execute the query
         return result;
     } catch (error) {
-        console.error("Error fetching products:", error);
-        throw new AppError(400,"Failed to fetch products");
+        console.log(error)
+        throw new AppError(400,`Failed to fetch products in service`);
     }
 };
 
@@ -36,7 +35,7 @@ const getSingleProductFromDB = async (productId: string) => {
     return await ProductModel.findOne({ _id: new mongoose.Types.ObjectId(productId) });
 };
 
-const updateProductInDB = async (productId: string, updatedData: Partial<Product>) => {
+const updateProductInDB = async (productId: string, updatedData: Partial<IProduct>) => {
     return await ProductModel.findByIdAndUpdate(
         productId,
         { $set: updatedData },

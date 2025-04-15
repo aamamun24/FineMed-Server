@@ -2,7 +2,7 @@ import AppError from "../../errors/AppError";
 import { TUser } from "./user.interface";
 import { UserModel } from "./user.model";
 import bcrypt from "bcrypt"; // Make sure bcrypt is installed
-import config from "../../../config";
+
 const createUserIntoDB = async(payload: TUser) => {
   const newUser = await UserModel.create(payload); 
   if(!newUser){
@@ -10,23 +10,6 @@ const createUserIntoDB = async(payload: TUser) => {
   }
   return newUser;
 }
-
-const toggleUserStatus = async (userId: string) => {
-  const user = await UserModel.findById(userId);
-  
-  if (!user) {
-    throw new AppError(404, "User not found!");
-  }
-
-  // Toggle between "active" and "deactivated"
-  const newStatus = user.status === "active" ? "deactivated" : "active";
-  
-  user.status = newStatus;
-  await user.save();
-
-  return user;
-};
-
 
 
 
@@ -95,7 +78,6 @@ const updateUserData = async (userEmail: string, updates: Partial<TUser>) => {
 
 export const userServices = {
   createUserIntoDB,
-  toggleUserStatus,
   updateUserPassword,
   getMeFromDB,
   updateUserData,

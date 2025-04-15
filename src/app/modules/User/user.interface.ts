@@ -9,7 +9,6 @@ export interface TUser extends Document {
   password: string;
   passwordChangedAt?: Date;
   role: "admin" | "customer";
-  status:"deactivated" | "active";
   isDeleted: boolean;
 }
 

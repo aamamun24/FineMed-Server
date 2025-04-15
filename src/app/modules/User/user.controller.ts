@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response } from "express";
 import httpStatus from "http-status";
 import { JwtPayload } from "jsonwebtoken";
@@ -18,18 +19,6 @@ const createUser = catchAsync(async (req: Request, res: Response) => {
     success: true,
     message: "User created successfully", 
     data: newUser,
-  });
-});
-
-const toggleUserStatus = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.params;
-  const updatedUser = await userServices.toggleUserStatus(userId);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: `User status updated to ${updatedUser.status}`,
-    data: updatedUser,
   });
 });
 
@@ -108,7 +97,7 @@ const getMe = catchAsync(async (req,res) => {
 });
 
 
-// New controller function to update user data
+
 const updateUser = catchAsync(async (req: Request, res: Response) => {
   const { name, email } = req.body; // Expect name and/or email in body
 
@@ -161,7 +150,6 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 
 export const userController = {
   createUser,
-  toggleUserStatus,
   updatePassword,
   getMe,
   updateUser,

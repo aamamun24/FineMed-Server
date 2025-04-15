@@ -1,18 +1,16 @@
-export enum BicycleType {
-    Mountain = "Mountain",
-    Road = "Road",
-    Hybrid = "Hybrid",
-    BMX = "BMX",
-    Electric = "Electric"
-}
-
-export interface Product {
+export interface IProduct {
     name: string;
     brand: string;
     price: number;
     image: string;
-    type: BicycleType;
+    form: 'Tablet' | 'Syrup' | 'Capsule' | 'Injection' | 'Ointment';
+    category: 'Antibiotic' | 'Painkiller' | 'Antacid' | 'Antiseptic' | 'Antiviral';
     description: string;
+    simptoms: string[];
     quantity: number;
-    inStock: boolean;
+    prescriptionRequired: boolean;
+    manufacturer: string;
+    expiryDate: string; 
+    createdAt?: string; 
+    updatedAt?: string; 
 }
