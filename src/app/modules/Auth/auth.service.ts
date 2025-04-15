@@ -1,91 +1,100 @@
 import config from "../../../config";
 import AppError from "../../errors/AppError";
-import { UserModel } from "../User/user.model";
 import { TLoginUser } from "./auth.interface";
 import { createToken, verifyToken } from "./auth.utils";
 import httpStatus from 'http-status';
-import bcrypt from "bcrypt"; // Make sure bcrypt is installed
+import bcrypt from "bcrypt";
+import { UserModel } from "../User/user.model";
 
 const loginUserIntoDB = async (payload: TLoginUser) => {
-  const user = await UserModel.isUserExistsByEmail(payload.email);
+  const { email, phone, password } = payload;
+
+  // Fetch user by email or phone
+  const user = email
+    ? await UserModel.isUserExistsByEmail(email)
+    : await UserModel.isUserExistsByPhone(phone!);
+
   if (!user) {
-    throw new AppError(401,"User not found"); 
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  if(user?.status == "deactivated"){
-    throw new AppError(401, "User Deactivated by Admin!");
+  if (user.status === "deactivated") {
+    throw new AppError(httpStatus.FORBIDDEN, "User deactivated by admin!");
+  }
+
+  if (user.isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, "User is deleted!");
   }
 
   // Verify password
-  const isPasswordValid = await bcrypt.compare(payload.password, user.password);
+  const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
-    throw new AppError(401, "Invalid password");
+    throw new AppError(httpStatus.UNAUTHORIZED, "Invalid password");
   }
 
   const jwtPayload = {
     userEmail: user.email,
+    userPhone: user.phone,
     role: user.role,
   };
 
   const accessToken = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    config.jwt_access_expires_in as string,
+    config.jwt_access_expires_in as string
   );
 
   const refreshToken = createToken(
     jwtPayload,
     config.jwt_refresh_secret as string,
-    config.jwt_refresh_expires_in as string,
+    config.jwt_refresh_expires_in as string
   );
 
   return {
     accessToken,
-    refreshToken
+    refreshToken,
   };
 };
 
-
-
 const refreshToken = async (token: string) => {
-  // checking if the given token is valid
+  // Verify the refresh token
   const decoded = verifyToken(token, config.jwt_refresh_secret as string);
 
-  const { userEmail, iat } = decoded;
+  const { userEmail, userPhone } = decoded;
 
-
-  // checking if the user is exist
-  const user = await UserModel.isUserExistsByEmail(userEmail);
+  // Check if the user exists using either email or phone
+  const user = userEmail
+    ? await UserModel.isUserExistsByEmail(userEmail)
+    : await UserModel.isUserExistsByPhone(userPhone);
 
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found!');
   }
 
-  // // checking if the user is already deleted
-  const isDeleted = user?.isDeleted;
-
-  if (isDeleted) {
-    throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
+  if (user.isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, 'User is deleted!');
   }
 
+  if (user.status === "deactivated") {
+    throw new AppError(httpStatus.FORBIDDEN, 'User is deactivated!');
+  }
 
   const jwtPayload = {
     userEmail: user.email,
+    userPhone: user.phone,
     role: user.role,
   };
 
   const accessToken = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    config.jwt_access_expires_in as string,
+    config.jwt_access_expires_in as string
   );
 
   return {
     accessToken,
   };
 };
-
-
 
 export const authServices = {
   loginUserIntoDB,

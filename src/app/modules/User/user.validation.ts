@@ -3,66 +3,120 @@ import { z } from 'zod';
 const createUserValidationSchema = z.object({
   body: z.object({
     email: z
-    .string({
-      invalid_type_error: 'Email must be a string',
-      required_error: 'Email is required',
-    })
-    .email({ message: 'Invalid email format' })
-    .trim()
-    .toLowerCase(), // Ensures email is normalized
+      .string({
+        invalid_type_error: 'Email must be a string',
+        required_error: 'Email is required',
+      })
+      .email({ message: 'Invalid email format' })
+      .trim()
+      .toLowerCase(),
 
-  password: z
-    .string({
-      invalid_type_error: 'Password must be a string',
-      required_error: 'Password is required',
-    })
-    .min(6, { message: 'Password must be at least 6 characters long' })
-    .max(20, { message: 'Password cannot be more than 20 characters' }),
+    password: z
+      .string({
+        invalid_type_error: 'Password must be a string',
+        required_error: 'Password is required',
+      })
+      .min(6, { message: 'Password must be at least 6 characters long' })
+      .max(20, { message: 'Password cannot be more than 20 characters' }),
 
-  passwordChangedAt: z
-    .date({
-      invalid_type_error: 'PasswordChangedAt must be a valid date',
-    })
-    .optional(), // Optional field
+    phone: z
+      .string({
+        invalid_type_error: 'Phone must be a string',
+        required_error: 'Phone number is required',
+      })
+      .min(10, { message: 'Phone number must be at least 10 digits long' })
+      .regex(/^01\d{9}$/, { message: 'Phone number must start with "01.." and be 11 digits long' })
+      .trim(),
 
-  role: z.string({
-    invalid_type_error: 'Role must be a string',
-    required_error: 'Role is required',
-  })
-  .refine((val) => ['admin', 'customer'].includes(val), {
-    message: 'Role must be either "admin" or "customer"',
-  })
-  .default('customer'),
-  isDeleted: z
-    .boolean({
-      invalid_type_error: 'isDeleted must be a boolean',
-    })
-    .default(false),
-  })
+    name: z
+      .string({
+        invalid_type_error: 'Name must be a string',
+        required_error: 'Name is required',
+      })
+      .min(1, { message: 'Name must be at least 1 character long' })
+      .max(50, { message: 'Name cannot be more than 50 characters' })
+      .trim(),
+
+    passwordChangedAt: z
+      .date({
+        invalid_type_error: 'PasswordChangedAt must be a valid date',
+      })
+      .optional(),
+
+    role: z
+      .string({
+        invalid_type_error: 'Role must be a string',
+        required_error: 'Role is required',
+      })
+      .refine((val) => ['admin', 'customer'].includes(val), {
+        message: 'Role must be either "admin" or "customer"',
+      })
+      .default('customer'),
+
+    isDeleted: z
+      .boolean({
+        invalid_type_error: 'isDeleted must be a boolean',
+      })
+      .default(false),
+  }),
 });
 
 const updateUserValidationSchema = z.object({
   body: z.object({
     email: z
       .string({
-        invalid_type_error: "Email must be a string",
+        invalid_type_error: 'Email must be a string',
       })
-      .email({ message: "Invalid email format" })
+      .email({ message: 'Invalid email format' })
       .trim()
       .toLowerCase()
-      .optional(), // Email is optional for partial updates
+      .optional(),
+
+    phone: z
+      .string({
+        invalid_type_error: 'Phone must be a string',
+      })
+      .min(10, { message: 'Phone number must be at least 10 digits long' })
+      .regex(/^01\d{9}$/, { message: 'Phone number must start with "01.." and be 11 digits long' })
+      .trim()
+      .optional(),
 
     name: z
       .string({
-        invalid_type_error: "Name must be a string",
+        invalid_type_error: 'Name must be a string',
       })
-      .min(1, { message: "Name must be at least 1 character long" })
-      .max(50, { message: "Name cannot be more than 50 characters" })
-      .optional(), // Name is optional for partial updates
+      .min(1, { message: 'Name must be at least 1 character long' })
+      .max(50, { message: 'Name cannot be more than 50 characters' })
+      .trim()
+      .optional(),
+
+    role: z
+      .string({
+        invalid_type_error: 'Role must be a string',
+      })
+      .refine((val) => ['admin', 'customer'].includes(val), {
+        message: 'Role must be either "admin" or "customer"',
+      })
+      .optional(),
+
+    status: z
+      .string({
+        invalid_type_error: 'Status must be a string',
+      })
+      .refine((val) => ['active', 'deactivated'].includes(val), {
+        message: 'Status must be either "active" or "deactivated"',
+      })
+      .optional(),
+
+    isDeleted: z
+      .boolean({
+        invalid_type_error: 'isDeleted must be a boolean',
+      })
+      .optional(),
   }),
 });
 
 export const UserValidation = {
   createUserValidationSchema,
-  updateUserValidationSchema, // Export new schema
+  updateUserValidationSchema,
 };

@@ -1,7 +1,7 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import config from "../../../config";
-import { TUser, IUserModel } from "./user.interface";
+import { IUserModel, TUser } from "./user.interface";
 
 // Define the Mongoose schema
 const userSchema = new Schema<TUser>(
@@ -9,6 +9,11 @@ const userSchema = new Schema<TUser>(
     name: {
       type: String,
       required: [true, "Name is required"],
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: [true, "Phone number is required"],
       trim: true,
     },
     email: {
@@ -50,6 +55,7 @@ const userSchema = new Schema<TUser>(
 
 // Password hashing middleware
 userSchema.pre("save", async function (next) {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
   const user = this; // Document context
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(
@@ -60,9 +66,12 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// Define static method
+// Define static methods
 userSchema.statics.isUserExistsByEmail = async function (email: string) {
   return await this.findOne({ email }).select("+password"); // 'this' refers to UserModel
+};
+userSchema.statics.isUserExistsByPhone = async function (phone: string) {
+  return await this.findOne({ phone }).select("+password"); // 'this' refers to UserModel
 };
 
 // Export the Mongoose model

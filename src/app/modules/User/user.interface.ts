@@ -4,7 +4,8 @@ import { USER_ROLE } from "./user.constant";
 
 export interface TUser extends Document {
   email: string;
-  name: string,
+  phone: string;
+  name: string;
   password: string;
   passwordChangedAt?: Date;
   role: "admin" | "customer";
@@ -16,6 +17,7 @@ export interface TUser extends Document {
 export interface IUserModel extends Model<TUser> {
   // Static method
   isUserExistsByEmail(email: string): Promise<TUser | null>;
+  isUserExistsByPhone(phone: string): Promise<TUser | null>;
 
   // Instance methods (if needed)
   isPasswordMatched(
