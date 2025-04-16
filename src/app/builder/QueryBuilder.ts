@@ -36,14 +36,23 @@ class QueryBuilder<T> {
 
     filter() {
         const queryObj = { ...this.query };
-        // Add 'search' to excludeFields
         const excludeFields = ["search", "searchTerm", "sort", "limit", "page", "fields"];
         excludeFields.forEach((el) => delete queryObj[el]);
-
+    
+        // Handle prescriptionRequired boolean filter
+        if (queryObj.prescriptionRequired !== undefined) {
+            // Convert string "true"/"false" to boolean
+            queryObj.prescriptionRequired =
+                String(queryObj.prescriptionRequired).toLowerCase() === "true";
+        }
+    
         // Only apply filter if there are additional conditions
         if (Object.keys(queryObj).length > 0) {
             const existingFilter = this.modelQuery.getFilter();
-            this.modelQuery = this.modelQuery.find({ ...existingFilter, ...queryObj } as FilterQuery<T>);
+            this.modelQuery = this.modelQuery.find({
+                ...existingFilter,
+                ...queryObj,
+            } as FilterQuery<T>);
         }
         return this;
     }
@@ -56,7 +65,7 @@ class QueryBuilder<T> {
 
     paginate() {
         const page = this.query?.page ? Number(this.query.page) : 1; // Default page = 1
-        const limit = this.query?.limit ? Number(this.query.limit) : 6; // Default to no limit
+        const limit = this.query?.limit ? Number(this.query.limit) : null; // Default to no limit
     
         if (limit) {
             const skip = (page - 1) * limit;

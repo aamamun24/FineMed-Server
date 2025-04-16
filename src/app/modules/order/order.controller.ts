@@ -65,6 +65,7 @@ const data = {
 
 
   
+  // console.log("controller level order: ",order)
 
   const result = await OrderServices.createOrderIntoDB({...order,transactionId});
 
@@ -79,8 +80,6 @@ const data = {
   );
 });
 
-
-
 const getAllOrders = catchAsync(async (req: Request, res: Response) => {
   const result = await OrderServices.getAllOrdersFromDB(req.query);
   sendResponse(res, {
@@ -90,7 +89,6 @@ const getAllOrders = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
 
 const getSingleOrder = catchAsync(async (req: Request, res: Response) => {
   const { orderId } = req.params;
@@ -153,9 +151,6 @@ const deleteOrder = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
-
-
 const getMyOrders = catchAsync(async (req: Request, res: Response) => {
   const user = req.user; 
   if (!user || !user.userEmail) {
@@ -171,7 +166,6 @@ const getMyOrders = catchAsync(async (req: Request, res: Response) => {
     data: orders,
   });
 });
-
 
 export const OrderController = {
   createOrder,

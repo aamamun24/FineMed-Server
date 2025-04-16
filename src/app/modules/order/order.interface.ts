@@ -1,20 +1,20 @@
 import { Types } from "mongoose";
 
-type TProducts = {
-    productId: Types.ObjectId;
-    quantity: number;
-}[];
-
-export interface Order {
+export interface IOrder {
     userEmail: string;
-    products: TProducts;
+    products: {
+      productId: Types.ObjectId;
+      quantity: number;
+    }[];
     totalPrice: number;
     address: string;
     contactNumber: string;
     status: "pending" | "processing" | "delivered" | "shipped";
-    prescriptionVarified: boolean;
-    prescriptionImageLink:string;
+    prescriptionRequired: boolean; // ✅ always required
+    prescriptionVarified?: boolean; // ✅ optional
+    prescriptionImageLink?: string; // ✅ optional
     createdAt: Date;
     updatedAt: Date;
     transactionId: string;
-}
+  }
+  

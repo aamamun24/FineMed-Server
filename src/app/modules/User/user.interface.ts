@@ -7,6 +7,7 @@ export interface TUser extends Document {
   phone: string;
   name: string;
   password: string;
+  address: string;
   passwordChangedAt?: Date;
   role: "admin" | "customer";
   isDeleted: boolean;

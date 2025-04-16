@@ -99,7 +99,7 @@ const getMe = catchAsync(async (req,res) => {
 
 
 const updateUser = catchAsync(async (req: Request, res: Response) => {
-  const { name, email } = req.body; // Expect name and/or email in body
+  const { name, email , phone, address} = req.body; 
 
   const token = req.headers.authorization;
   if (!token) {
@@ -113,7 +113,7 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
     throw new AppError(401, "Invalid or expired token");
   }
 
-  const updates = { name, email }; // Only include provided fields
+  const updates = { name, email ,phone, address}; 
   const updatedUser = await userServices.updateUserData(decoded.userEmail, updates);
 
   sendResponse(res, {

@@ -1,4 +1,4 @@
-import { Order } from "./order.interface";
+import { IOrder } from "./order.interface";
 import { OrderModel } from "./order.model";
 import { ProductModel } from "../product/product.model";
 import { UserModel } from "../User/user.model";
@@ -6,8 +6,9 @@ import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
 import QueryBuilder from "../../builder/QueryBuilder";
 
-const createOrderIntoDB = async (order: Order) => {
+const createOrderIntoDB = async (order: IOrder) => {
   const { userEmail, products } = order;
+
 
   // Check if user exists
   const userInDB = await UserModel.isUserExistsByEmail(userEmail);
@@ -15,7 +16,9 @@ const createOrderIntoDB = async (order: Order) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  let prescriptionVarified = true;
+
+let prescriptionRequiredFlag = false;
+
 
   // Validate each product in the order
   for (const item of products) {
@@ -29,14 +32,16 @@ const createOrderIntoDB = async (order: Order) => {
       throw new AppError(httpStatus.BAD_REQUEST, `Insufficient stock for product ${item.productId}`);
     }
 
-    // 🔥 If any product requires prescription, set to false
+    // If any product requires prescription, set to false
     if (productInDB.prescriptionRequired) {
-      prescriptionVarified = false;
+      prescriptionRequiredFlag = true;
     }
   }
 
-  // Set prescriptionVerified on the order
-  order.prescriptionVarified = prescriptionVarified;
+  // 🔥 Set prescriptionRequired on the order based on products ordered
+  order.prescriptionRequired = prescriptionRequiredFlag;
+
+  // console.log("service level order: ",order)
 
   // Create the order
   return await OrderModel.create(order);
@@ -62,7 +67,7 @@ const getSingleOrderFromDB = async (orderId: string) => {
   return await OrderModel.findById(orderId).populate("products.productId");
 };
 
-const updateOrderInDB = async (orderId: string, updatedData: Partial<Order>) => {
+const updateOrderInDB = async (orderId: string, updatedData: Partial<IOrder>) => {
   const existingOrder = await OrderModel.findById(orderId);
   if (!existingOrder) {
     throw new AppError(httpStatus.NOT_FOUND, "Order not found");

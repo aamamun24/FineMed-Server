@@ -1,8 +1,7 @@
 import { model, Schema } from "mongoose";
-import { Order } from "./order.interface";
+import { IOrder } from "./order.interface";
 
-// Define the order schema
-const orderSchema = new Schema<Order>(
+const orderSchema = new Schema<IOrder>(
   {
     userEmail: {
       type: String,
@@ -11,7 +10,7 @@ const orderSchema = new Schema<Order>(
     products: [
       {
         productId: {
-          _id: false, // 👈 this prevents automatic _id (not working and not causing any prblm also)
+          _id: false,
           type: Schema.Types.ObjectId,
           ref: "Product",
           required: [true, "Product ID is required"],
@@ -41,17 +40,21 @@ const orderSchema = new Schema<Order>(
       required: [true, "Status is required"],
     },
     transactionId: {
-      type: String,
-      default: "TRANS_pending",
+      type: String
+    },
+    prescriptionRequired: {
+      type: Boolean,
     },
     prescriptionVarified: {
-      type: Boolean
+      type: Boolean,
     },
     prescriptionImageLink: {
-      type: String,
+      type: String
     },
   },
   { timestamps: true }
 );
 
-export const OrderModel = model<Order>("Order", orderSchema);
+
+
+export const OrderModel = model<IOrder>("Order", orderSchema);

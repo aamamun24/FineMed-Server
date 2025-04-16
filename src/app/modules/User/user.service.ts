@@ -71,6 +71,9 @@ const updateUserData = async (userEmail: string, updates: Partial<TUser>) => {
   // Update only the provided fields (name, email)
   if (updates.name) user.name = updates.name;
   if (updates.email) user.email = updates.email;
+  if (updates.phone) user.phone = updates.phone;
+  if (updates.address) user.address = updates.address;
+
 
   await user.save();
   return user;

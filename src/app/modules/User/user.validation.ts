@@ -18,6 +18,14 @@ const createUserValidationSchema = z.object({
       })
       .min(6, { message: 'Password must be at least 6 characters long' })
       .max(20, { message: 'Password cannot be more than 20 characters' }),
+   
+    address: z
+      .string({
+        invalid_type_error: 'Address must be a string',
+        required_error: 'Address is required',
+      })
+      .max(20, { message: 'Password cannot be more than 20 characters' })
+      .default('Bangladesh'),
 
     phone: z
       .string({
