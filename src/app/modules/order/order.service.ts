@@ -32,6 +32,15 @@ let prescriptionRequiredFlag = false;
       throw new AppError(httpStatus.BAD_REQUEST, `Insufficient stock for product ${item.productId}`);
     }
 
+    //update product stock
+    const newQuantity = productInDB.quantity - item.quantity;
+    const quantityUpdate = await ProductModel.findByIdAndUpdate(
+            productInDB._id,
+            { $set: {quantity:newQuantity} })
+    if(!quantityUpdate){
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Error updating product stock!")
+    }
+
     // If any product requires prescription, set to false
     if (productInDB.prescriptionRequired) {
       prescriptionRequiredFlag = true;
@@ -39,9 +48,13 @@ let prescriptionRequiredFlag = false;
   }
 
   // 🔥 Set prescriptionRequired on the order based on products ordered
-  order.prescriptionRequired = prescriptionRequiredFlag;
+  if(prescriptionRequiredFlag){
+    if(!order.prescriptionImageLink){
+      throw new AppError(httpStatus.UNAUTHORIZED, "Prescription Required but not provided!")
+    }
+  }
 
-  // console.log("service level order: ",order)
+  order.prescriptionRequired = prescriptionRequiredFlag;
 
   // Create the order
   return await OrderModel.create(order);
@@ -114,11 +127,32 @@ const getOrdersByEmail = async (email: string) => {
   return orders;
 };
 
+const verifyPrescriptionService = async (orderId: string) => {
+  const order = await OrderModel.findById(orderId);
+  if (!order) {
+    throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+  }
+
+  if (!order.prescriptionRequired) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Prescription verification not required for this order"
+    );
+  }
+
+  order.prescriptionVarified = true;
+  await order.save();
+
+  return order;
+};
+
+
 export const OrderServices = {
   createOrderIntoDB,
   getAllOrdersFromDB,
   getSingleOrderFromDB,
   updateOrderInDB,
   deleteOrderFromDB,
-  getOrdersByEmail
+  getOrdersByEmail,
+  verifyPrescriptionService
 };

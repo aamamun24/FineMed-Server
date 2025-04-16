@@ -22,6 +22,12 @@ router.get(
   OrderController.getAllOrders
 );
 
+router.patch(
+  "/verify-prescription/:orderId",
+  auth("admin"),
+  OrderController.verifyPrescription
+);
+
 router.get(
   "/myOrders",
   auth("customer","admin"),

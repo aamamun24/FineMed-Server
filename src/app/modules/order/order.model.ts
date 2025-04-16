@@ -44,9 +44,11 @@ const orderSchema = new Schema<IOrder>(
     },
     prescriptionRequired: {
       type: Boolean,
+      default: false
     },
     prescriptionVarified: {
       type: Boolean,
+      default: false
     },
     prescriptionImageLink: {
       type: String

@@ -167,11 +167,27 @@ const getMyOrders = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+export const verifyPrescription = catchAsync(
+  async (req: Request, res: Response) => {
+    const { orderId } = req.params;
+
+    const result = await OrderServices.verifyPrescriptionService(orderId);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Prescription verified successfully",
+      data: result,
+    });
+  }
+);
+
 export const OrderController = {
   createOrder,
   getAllOrders,
   getSingleOrder,
   updateOrder,
   deleteOrder,
-  getMyOrders
+  getMyOrders,
+  verifyPrescription
 };
