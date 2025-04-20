@@ -25,6 +25,9 @@ const createOrderValidationSchema = z.object({
       .string({ required_error: "Address is required" })
       .min(1, { message: "Address cannot be empty" }),
 
+    paymentMethod: 
+      z.enum(["cashOnDelivery", "sslcommerz"]),
+
     contactNumber: z
       .string({ required_error: "Contact number is required" })
       .min(1, { message: "Contact number cannot be empty" }),

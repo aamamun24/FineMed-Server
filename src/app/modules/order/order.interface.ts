@@ -17,5 +17,6 @@ export interface IOrder {
     createdAt: Date;
     updatedAt: Date;
     transactionId: string;
+    paymentMethod: "cashOnDelivery" | "sslcommerz"
   }
   

@@ -33,6 +33,10 @@ const orderSchema = new Schema<IOrder>(
       type: String,
       required: [true, "Address is required"],
     },
+    paymentMethod: {
+      type: String,
+      required: [true, "Payment Method is required"],
+    },
     contactNumber: {
       type: String,
       required: [true, "Contact number is required"],
