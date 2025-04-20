@@ -8,6 +8,12 @@ const createProductValidation = z.object({
     .min(1, "Product name is required")
     .trim(),
 
+  generic: z
+    .string({
+      required_error: "Product generic name is required",
+    })
+    .trim(),
+
   image: z
     .string({
       required_error: "Image link is required",
@@ -112,6 +118,11 @@ const updateProductValidation = z.object({
       "Digestive Health",
     ]).optional(),
     simptoms: z.array(z.string()).optional(),
+    generic: z
+    .string({
+      required_error: "Product generic name is required",
+    })
+    .trim().optional(),
     description: z.string().trim().optional(),
     quantity: z.number().int("Quantity must be an integer").nonnegative("Quantity cannot be negative").optional(),
     prescriptionRequired: z.boolean().optional(),

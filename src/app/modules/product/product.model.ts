@@ -8,6 +8,11 @@ const productSchema = new Schema<IProduct>(
       required: [true, "Product name is required"],
       trim: true,
     },
+    generic: {
+      type: String,
+      required: [true, "Product generic is required"],
+      trim: true,
+    },
     image: {
       type: String,
       required: [true, "Image link is required"],

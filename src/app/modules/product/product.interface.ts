@@ -1,5 +1,6 @@
 export interface IProduct {
     name: string;
+    generic:string;
     brand: string;
     price: number;
     image: string;
