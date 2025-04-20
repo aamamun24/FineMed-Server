@@ -7,6 +7,10 @@ const orderSchema = new Schema<IOrder>(
       type: String,
       required: [true, "User email is required"],
     },
+    userName: {
+      type: String,
+      required: [true, "User name is required"],
+    },
     products: [
       {
         productId: {

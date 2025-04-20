@@ -7,6 +7,7 @@ import { UserRoutes } from "./app/modules/User/user.route";
 import globalErrorHandler from "./app/middlewares/globalErrorhandler";
 import { AuthRoutes } from "./app/modules/Auth/auth.route";
 import cookieParser from "cookie-parser";
+import { ReviewRoutes } from "./app/modules/reviews/review.route";
 const app: Application = express();
 
 // parser
@@ -22,6 +23,7 @@ app.use(cookieParser()); // Add this
     app.use("/api/orders", OrderRoutes);
     app.use("/api/users", UserRoutes);
     app.use("/api/auth", AuthRoutes);
+    app.use("/api/reviews", ReviewRoutes);
     app.use("/", RootRoute);
 
 

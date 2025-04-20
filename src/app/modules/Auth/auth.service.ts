@@ -18,10 +18,6 @@ const loginUserIntoDB = async (payload: TLoginUser) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  if (user.status === "deactivated") {
-    throw new AppError(httpStatus.FORBIDDEN, "User deactivated by admin!");
-  }
-
   if (user.isDeleted) {
     throw new AppError(httpStatus.FORBIDDEN, "User is deleted!");
   }
@@ -75,9 +71,6 @@ const refreshToken = async (token: string) => {
     throw new AppError(httpStatus.FORBIDDEN, 'User is deleted!');
   }
 
-  if (user.status === "deactivated") {
-    throw new AppError(httpStatus.FORBIDDEN, 'User is deactivated!');
-  }
 
   const jwtPayload = {
     userEmail: user.email,

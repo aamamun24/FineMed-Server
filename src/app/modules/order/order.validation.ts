@@ -9,6 +9,10 @@ const createOrderValidationSchema = z.object({
       .trim()
       .toLowerCase(),
 
+    userName: z
+      .string({ required_error: "User name is required" })
+      .trim(),
+
     products: z
       .array(z.any(), { required_error: "Products array is required" })
       .nonempty({ message: "Products array cannot be empty" }),
@@ -35,6 +39,7 @@ const createOrderValidationSchema = z.object({
 const updateOrderValidationSchema = z.object({
   body: z.object({
     userEmail: z.string().email().trim().toLowerCase().optional(),
+    userName: z.string().trim().optional(),
     products: z.array(z.any()).optional(),
     totalPrice: z.number().min(0).optional(),
     address: z.string().min(1).optional(),
