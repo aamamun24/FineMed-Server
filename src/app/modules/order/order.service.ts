@@ -123,9 +123,13 @@ const deleteOrderFromDB = async (orderId: string) => {
 };
 
 const getOrdersByEmail = async (email: string) => {
-  const orders = await OrderModel.find({ userEmail: email }).sort({ createdAt: -1 });
+  const orders = await OrderModel.find({ userEmail: email })
+    .sort({ createdAt: -1 })
+    .populate('products.productId'); // Assuming `products.productId` is the field referencing the Product model
+
   return orders;
 };
+
 
 const verifyPrescriptionService = async (orderId: string) => {
   const order = await OrderModel.findById(orderId);
