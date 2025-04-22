@@ -114,6 +114,7 @@ const updateOrder = catchAsync(async (req: Request, res: Response) => {
   const { orderId } = req.params;
   const updatedData = req.body;
 
+
   if (!mongoose.Types.ObjectId.isValid(orderId)) {
     throw new Error("Invalid order ID format");
   }
@@ -122,6 +123,43 @@ const updateOrder = catchAsync(async (req: Request, res: Response) => {
   if (!result) {
     throw new Error("Order not found");
   }
+
+
+//   app.post('/send-mail', (req, res) => {
+//     const { name, email } = req.body;
+
+//     const transporter = nodemailer.createTransport({
+//         service: 'gmail',
+//         auth: {
+//             user: process.env.EMAIL_USER,  
+//             pass: process.env.EMAIL_PASS,  
+//         },
+//     });
+
+//     const mailOptions = {
+//         from: process.env.EMAIL_USER,
+//         to: email,
+//         subject: 'Newsletter Subscription',
+//         html: `
+//         <div style="font-family: Arial, sans-serif; color: #333;">
+//             <h1 style="color: #c2410c;">Hello ${name},</h1>
+//             <p>Thank you for subscribing to our newsletter!</p>
+//             <p style="font-size: 16px; color: #555;">We're excited to have you on board. Stay tuned for the latest updates.</p>
+//             <p style="font-size: 14px;">Best Regards</p>
+//             <p style="color: #c2410c;"><b>EventHub Team</b></p>
+//         </div>
+//     `,
+//     };
+
+//     transporter.sendMail(mailOptions, (error, info) => {
+//         if (error) {
+//             console.error('Error sending email:', error);
+//             return res.status(500).send({ error: 'Error sending email' });
+//         }
+//         console.log('Email sent:', info.response);
+//         res.status(200).send({ message: 'Email sent successfully' });
+//     });
+// });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
