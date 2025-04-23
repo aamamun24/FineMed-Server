@@ -24,6 +24,12 @@ const ReviewSchema: Schema = new Schema(
       required: [true, 'Order count is required'],
       min: [0, 'Order count must be 0 or greater'],
     },
+    starCount: {
+      type: Number,
+      required: [true, 'Star count is required'],
+      min: [0, 'Order count must be 1 or greater'],
+      max: [5, 'Order count must be 5 or smaller'],
+    },
   },
   {
     timestamps: true,

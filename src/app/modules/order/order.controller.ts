@@ -66,8 +66,14 @@ const data = {
 
   
   // console.log("controller level order: ",order)
+  let result;
+  if(order.paymentMethod == "sslcommerz"){
+    result = await OrderServices.createOrderIntoDB({...order,transactionId});
+  }
+  else{
+    result = await OrderServices.createOrderIntoDB(order);
 
-  const result = await OrderServices.createOrderIntoDB({...order,transactionId});
+  }
 
 
   sendResponse(res, {

@@ -10,6 +10,8 @@ import { OrderModel } from '../order/order.model';
 const createReview = catchAsync(async (req: Request, res: Response) => {
   const reviewData = req.body;
 
+  console.log("rev: ", reviewData)
+
   const myOrderCount = (await OrderModel.find({userEmail: req.user.userEmail})).length; 
   if(myOrderCount < 1){
     throw new AppError(httpStatus.BAD_REQUEST, 'Make an order first to post reviews!');

@@ -4,6 +4,7 @@ export type TReview = {
     userEmail: string;
     reviewText: string;
     orderCount: number;
+    starCount: number;
   };
   
   // Extended for mongoose
