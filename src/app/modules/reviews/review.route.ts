@@ -5,7 +5,7 @@ import { ReviewController } from "./review.controller";
 
 const router = express.Router();
 
-router.post("/",auth("customer"), ReviewController.createReview);
+router.post("/",auth("customer","admin"), ReviewController.createReview);
 router.delete("/:id",auth("admin"), ReviewController.deleteReviewById);
 router.get("/", ReviewController.getAllReviews);
 
