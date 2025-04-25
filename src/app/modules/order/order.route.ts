@@ -81,9 +81,9 @@ router.post("/payment-success/:transID", async (req, res) => {
     { $set: { status: "processing" } },
     { new: true }
   );
-
+  
   res.redirect(
-    `http://localhost:3000/payment-success/${order?.transactionId}`
+    `https://fine-med-client.vercel.app/payment-success/${order?.transactionId}`
   );
 });
 
@@ -91,7 +91,7 @@ router.post("/payment-success/:transID", async (req, res) => {
 router.post("/payment-failed/:transID", async (req, res) => {
   const transID = req.params.transID;
   res.redirect(
-    `http://localhost:3000/payment-fail/${transID}`
+    `https://fine-med-client.vercel.app/payment-fail/${transID}`
   );
 });
 
@@ -99,7 +99,7 @@ router.post("/payment-failed/:transID", async (req, res) => {
 router.post("/payment-cancel/:transID", async (req, res) => {
   const transID = req.params.transID;
   res.redirect(
-    `http://localhost:3000/payment-fail/${transID}`
+    `https://fine-med-client.vercel.app/payment-fail/${transID}`
   );
   res.status(200).send("Payment cancelled");
 });

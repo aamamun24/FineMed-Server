@@ -14,7 +14,7 @@ const app: Application = express();
 app.use(express.json());
 app.use(cors({origin: [
     "http://localhost:5173",  // Local development
-    "https://bicycle-store-client-one.vercel.app",  // Vercel frontend
+    "https://fine-med-client.vercel.app",  // Vercel frontend
     "http://localhost:3000"
   ], credentials: true}));
 app.use(cookieParser()); // Add this

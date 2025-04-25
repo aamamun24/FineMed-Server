@@ -1,205 +1,177 @@
+🚀 FineMed Server
+=================
 
-# **Bicycle Garden Server**
+The **FineMed Server** powers the **FineMed-Client** telemedicine and e-commerce platform. Built using **Node.js**, **Express**, and **TypeScript**, it offers **type-safe**, **scalable**, and **secure APIs** for managing medicines, users, orders, and reviews.
 
-![Bicycle Store Banner](https://i.postimg.cc/Vv24FZX6/Frame-6.png)
+* * * * *
+LIVE Frontend:  https://fine-med-client.vercel.app
 
-## **Project Overview**
-The **Bicycle Garden Server** is a comprehensive backend system designed to manage bicycle store operations. With this server, users can manage bicycle products, process orders, and handle inventory with ease. The server includes features like product management, order processing, stock adjustments, and revenue calculation to track total sales. Built using **Node.js**, **Express.js**, and **MongoDB**, this server provides a robust and scalable solution for bicycle store management.
+LIVE Backend(THIS):  https://fine-med-server.vercel.app
 
-## **Live URL**
-[https://bi-cycle-store-server-one.vercel.app](https://bi-cycle-store-server-one.vercel.app)
+🧱 Tech Stack
+-------------
 
-## **Features**
-### **Product Management**
-- **Add Products**: Create new bicycle products with details like name, price, brand, and inventory quantity.
-- **Update Products**: Modify product details, such as updating the price or inventory.
-- **Delete Products**: Remove products from the database.
-- **View Products**: Retrieve product details, including current inventory status.
+⚙️ **Node.js & Express** --- API framework\
+🔐 **TypeScript** --- Type-safe development\
+🗄️ **MongoDB + Mongoose** --- NoSQL database & ORM\
+🔑 **JWT & bcrypt** --- Authentication & password encryption\
+📧 **Nodemailer** --- Email notifications\
+💳 **SSLCommerz** --- Secure payment gateway\
+🛡️ **Zod** --- Input validation\
+🧹 **ESLint & Prettier** --- Code quality & formatting
 
-### **Order Management**
-- **Place Orders**: Customers can place orders for bicycles, specifying quantity and product details.
-- **Track Stock Availability**: Automatically check inventory and prevent orders if there’s insufficient stock.
-- **Revenue Calculation**: The server calculates total revenue from orders, utilizing MongoDB aggregation pipelines to sum up the sales amount.
+* * * * *
 
-### **Stock Management**
-- **Inventory Adjustments**: Inventory is automatically updated after each order placement.
-- **Out of Stock**: Products are marked as out of stock when their quantity hits zero.
+🔐 Authentication & User Roles
+------------------------------
 
-### **Error Handling**
-- The server includes comprehensive error handling with appropriate error messages and HTTP status codes for common issues such as:
-  - Insufficient stock for orders
-  - Failed product creation or deletion
-  - Invalid product or order data
+All routes are protected using **JWT Authentication** (`Authorization: Bearer <token>`)
 
-## **API Endpoints**
+### 👤 Roles
 
-### **Product Management APIs**
-1. **Create Product**
-   - **URL**: `/api/products`
-   - **Method**: `POST`
-   - **Body**:
-     ```json
-     {
-       "name": "Mountain Bike",
-       "price": 500,
-       "brand": "BikeCo",
-       "inventory": 10
-     }
-     ```
-   - **Description**: Adds a new product to the store.
-   - **Response**: 
-     ```json
-     {
-       "success": true,
-       "message": "Product created successfully",
-       "data": { ...product }
-     }
-     ```
+🛡️ **Admin** --- Full control over platform (users, medicines, orders, reviews)\
+🛒 **Customer** --- Can browse, order medicines, and submit reviews
 
-2. **Get All Products**
-   - **URL**: `/api/products`
-   - **Method**: `GET`
-   - **Description**: Retrieves all products in the store.
-   - **Response**:
-     ```json
-     {
-       "success": true,
-       "message": "Products retrieved successfully",
-       "data": [ ...products ]
-     }
-     ```
+* * * * *
 
-3. **Update Product**
-   - **URL**: `/api/products/:productId`
-   - **Method**: `PUT`
-   - **Body**:
-     ```json
-     {
-       "price": 550,
-       "inventory": 8
-     }
-     ```
-   - **Description**: Updates the details of an existing product.
-   - **Response**:
-     ```json
-     {
-       "success": true,
-       "message": "Product updated successfully",
-       "data": { ...updatedProduct }
-     }
-     ```
+🧾 API Overview
+---------------
 
-4. **Delete Product**
-   - **URL**: `/api/products/:productId`
-   - **Method**: `DELETE`
-   - **Description**: Deletes a product from the store.
-   - **Response**:
-     ```json
-     {
-       "success": true,
-       "message": "Product deleted successfully"
-     }
-     ```
+### 📝 User Registration & Login
 
-### **Order Management APIs**
-1. **Place Order**
-   - **URL**: `/api/orders`
-   - **Method**: `POST`
-   - **Body**:
-     ```json
-     {
-       "productId": "60d0fe4f5311236168a109cf",
-       "quantity": 2
-     }
-     ```
-   - **Description**: Places a new order for the specified product and quantity.
-   - **Response**:
-     ```json
-     {
-       "success": true,
-       "message": "Order placed successfully",
-       "data": { ...order }
-     }
-     ```
+➕ `POST /auth/register` --- Register a new user\
+→ Fields: `name`, `email`, `password`, `phone`, `address`
 
-2. **Get All Orders**
-   - **URL**: `/api/orders`
-   - **Method**: `GET`
-   - **Description**: Retrieves all orders placed by customers.
-   - **Response**:
-     ```json
-     {
-       "success": true,
-       "message": "Orders retrieved successfully",
-       "data": [ ...orders ]
-     }
-     ```
+🔑 `POST /auth/login` --- Login and receive JWT tokens\
+🔁 `POST /auth/refresh-token` --- Refresh access token
 
-3. **Update Order Status**
-   - **URL**: `/api/orders/:orderId`
-   - **Method**: `PUT`
-   - **Body**:
-     ```json
-     {
-       "status": "shipped"
-     }
-     ```
-   - **Description**: Updates the status of an existing order (e.g., mark as shipped).
-   - **Response**:
-     ```json
-     {
-       "success": true,
-       "message": "Order status updated successfully",
-       "data": { ...updatedOrder }
-     }
-     ```
+🔒 Passwords encrypted via **bcrypt**\
+🔐 Session managed using **JWT**
 
-4. **Calculate Revenue**
-   - **URL**: `/api/orders/revenue`
-   - **Method**: `GET`
-   - **Description**: Calculates the total revenue from all orders.
-   - **Response**:
-     ```json
-     {
-       "success": true,
-       "message": "Total revenue calculated successfully",
-       "revenue": 5000
-     }
-     ```
+* * * * *
 
-## **Technology Stack**
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB (with Mongoose ORM)
-- **API Routes**: RESTful API for product and order management
-- **Aggregation**: MongoDB aggregation for calculating total revenue from orders
+### 👥 User Management
 
-## **How to Set Up**
+📋 `GET /users` --- Admin fetches all users\
+✏️ **CRUD (Admin Only)** --- Update/delete user data (assumed backend support)
 
-### **Prerequisites**
-Before running this project, ensure you have the following installed:
-- **Node.js** (Version >= 14.x)
-- **MongoDB** (Locally or cloud-based instance like MongoDB Atlas)
+💡 *Use Case*: Monitor user base, track orders, and manage user access.
 
-### **Installation**
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-username/bicycle-store-server.git
-   cd bicycle-store-server
-   ```
+* * * * *
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+### 💊 Medicine Management
 
-3. **Set up MongoDB**:
-   - If you are using MongoDB locally, ensure that MongoDB is running.
-   - For MongoDB Atlas, replace the database connection string in the `.env` file with your MongoDB Atlas connection string.
+📦 `GET /medicines` --- Get list of medicines\
+➕ `POST /medicines` --- Add new medicine (**Admin**)\
+🔄 `PATCH /medicines/:id` --- Update medicine details (**Admin**)\
+❌ `DELETE /medicines/:id` --- Remove medicine (**Admin**)
 
-4. **Run the server**:
-   ```bash
-   npm start
-   ```
+💡 *Use Case*: Inventory management for e-commerce.
 
-5. The server will be running on [http://localhost:5000](http://localhost:5000).
-# Fine-Med-server
+* * * * *
+
+### 📦 Order Management
+
+📋 `GET /orders` --- Admin gets all orders\
+🔄 `PATCH /orders/:id` --- Update order status (`pending`, `processing`, `shipped`, `delivered`)
+
+➡️ Fields: `userEmail`, `contactNumber`, `products`, `prescriptionImageLink`, `status`
+
+💡 *Use Case*: Fulfill orders and verify prescription uploads.
+
+* * * * *
+
+### 🌟 Review Management
+
+📋 `GET /reviews` --- Admin fetches all reviews\
+❌ `DELETE /reviews/:id` --- Remove specific review
+
+➡️ Fields: `userEmail`, `userName`, `reviewText`, `starCount`, `orderCount`
+
+💡 *Use Case*: Maintain platform trust by moderating reviews.
+
+* * * * *
+
+🌟 Special Features
+-------------------
+
+🔐 **Role-Based Operations** --- Separate flows for admin and customers\
+✉️ **Email Notifications** --- Order updates via Nodemailer\
+🔒 **Password Encryption** --- Secured with bcrypt\
+🧾 **Prescription Verification** --- Admins review uploaded prescriptions\
+💳 **Payment Gateway** --- Integrated with SSLCommerz\
+🧪 **Input Validation** --- Robust checks using Zod
+
+* * * * *
+
+🛠️ Setup & Running the Server
+------------------------------
+
+### ✅ Prerequisites
+
+Make sure you have these installed:
+
+-   **Node.js** (v18 or higher)
+
+-   **MongoDB** (local or MongoDB Atlas)
+
+-   **npm** or **yarn**
+
+* * * * *
+
+### 📦 Installation Steps
+
+#### 1️⃣ Clone the Repository
+
+bash
+
+CopyEdit
+
+`git clone https://github.com/your-username/finemed-server.git
+cd finemed-server`
+
+#### 2️⃣ Install Dependencies
+
+bash
+
+CopyEdit
+
+`npm install
+# or
+yarn install`
+
+#### 3️⃣ Configure Environment Variables
+
+Create a `.env` file in the root directory and add the following:
+
+ini
+
+CopyEdit
+
+`PORT=5000
+DATABASE_URL=your_mongodb_uri
+JWT_SECRET=your_jwt_secret
+REFRESH_SECRET=your_refresh_token_secret
+EMAIL_USER=your_email@example.com
+EMAIL_PASS=your_email_password
+SSL_STORE_ID=your_sslcommerz_store_id
+SSL_STORE_PASSWORD=your_sslcommerz_store_password`
+
+* * * * *
+
+### 🚧 Run the Server
+
+#### 🧪 Development Mode
+
+npm run start:dev
+# or
+
+#### 🚀 Production Build
+
+
+`npm run build
+npm start`
+
+* * * * *
+
+✅ The server will be available at: `http://localhost:5000` (or the port specified in your `.env`)
