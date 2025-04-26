@@ -17,7 +17,6 @@ const globalErrorHandler: ErrorRequestHandler = (
   res: Response,
   next: NextFunction
 ): void => {
-  console.log(err.statusCode);
 
   // Setting default values
   let statusCode = 500;

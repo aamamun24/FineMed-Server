@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { UserModel } from './user.model';
 
 const createUserValidationSchema = z.object({
   body: z.object({
@@ -27,14 +28,23 @@ const createUserValidationSchema = z.object({
       .max(20, { message: 'Password cannot be more than 20 characters' })
       .default('Bangladesh'),
 
-    phone: z
+      phone: z
       .string({
         invalid_type_error: 'Phone must be a string',
         required_error: 'Phone number is required',
       })
       .min(10, { message: 'Phone number must be at least 10 digits long' })
       .regex(/^01\d{9}$/, { message: 'Phone number must start with "01.." and be 11 digits long' })
-      .trim(),
+      .trim()
+      .refine(
+        async (phone) => {
+          const user = await UserModel.isUserExistsByPhone(phone);
+          return !user; // Return true if phone does not exist (valid)
+        },
+        {
+          message: 'Phone number already exists',
+        }
+      ),
 
     name: z
       .string({

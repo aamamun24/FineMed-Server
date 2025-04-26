@@ -10,7 +10,7 @@ import AppError from "../../errors/AppError";
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const order = req.body;
 
-  console.log("order-ctrl: ", order)
+  // console.log("order-ctrl: ", order)
 
   // payment 
   const store_id = 'test67f513f2c14ae';
@@ -57,6 +57,11 @@ const data = {
   // console.log("📦 Full SSLCommerz API GatewayPageURL:", apiResponse.GatewayPageURL);
 
   const GatewayPageURL = apiResponse?.GatewayPageURL;
+
+  console.log("orderdata: ",order);
+  console.log("apiResponse: ",apiResponse);
+
+  // console.log()
 
   if (!GatewayPageURL) {
     console.log("❌ No GatewayPageURL returned");

@@ -30,7 +30,7 @@ const refreshToken = catchAsync(async (req, res) => {
   const result = await authServices.refreshToken(refreshToken);
 
 
-  console.log("refreshed token")
+  // console.log("refreshed token")
 
 
 
